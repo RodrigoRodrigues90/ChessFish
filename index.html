@@ -1,114 +1,36 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="./javaScript/fen_utils.js" type="module"></script>
-    <script src="./javaScript//rules_IA_utils.js" type="module"></script>
-    <script src="./javaScript/calculate_moves_utils.js" type="module"></script>
-    <script src="./javaScript/jogo.js" type="module"></script>
-    <link rel="stylesheet" href="./css/estilo.css">
-    <link rel="icon" href="./img/horse.png" type="image/x-icon">
-    <title>ChessVsStockfish</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Vs StockFish</title>
+    <link rel="stylesheet" href="css/estilo.css">
+    <script type="module" src="javaScript/main.js" defer></script>
+    <script type="module" src="javaScript/tabuleiro.js" defer></script>
 </head>
-
-<body onload="desabilitarPlay()">
-    <input id="volume" type="button" class="volumeButton" onclick="stopMusic()"></input>
-    <section class="wrapper-jogo" id="wrapper-play">
-        <h1 id="title"><img style="width: 36px;" src="./img/horse.png" class="horse">ChessVs<p class="stockfish-color">
-                Stockfish</p>
-        </h1>
-        <div class="wrapper-message-stockfish">
-            <div class="info-stockfish">
-                <div class="img-stockfish"></div>
-                <output type="text" id="input-msg-stockfish" value="" readonly> </output>
-            </div>
+<!-- Modal de Escolha de Cor -->
+<div id="modal-selecao-cor" class="modal-overlay">
+    <div class="modal-conteudo">
+        <h2>Escolha suas peças</h2>
+        <div class="opcoes-cor">
+            <button id="btn-jogar-brancas" class="btn-cor branca">
+                ♔ Jogar de Brancas
+            </button>
+            <button id="btn-jogar-pretas" class="btn-cor preta">
+                ♚ Jogar de Pretas
+            </button>
         </div>
-        <div class="info">
+    </div>
+</div>
 
-            <div style="display: none;">
-                <!--peças negras-->
-                <img src="./img/peças_negras/Black_Bishop.png" class="pieces" id="blackBishop">
-                <img src="./img/peças_negras/black_knight.png" class="pieces" id="blackKnight">
-                <img src="./img/peças_negras/black_Castle.png" class="pieces" id="blackCastle">
-                <img src="./img/peças_negras/black_King.png" class="pieces" id="blackking">
-                <img src="./img/peças_negras/Queen.png" class="pieces" id="blackQueen">
-                <img src="./img/peças_negras/black_Pone.png" class="pieces" id="blackPone">
+<body>
 
-                <!--peças brancas-->
-                <img src="./img/peças_brancas/white_Bishop.png" class="pieces" id="whiteBishop">
-                <img src="./img/peças_brancas/white_Knight.png" class="pieces" id="whiteKnight">
-                <img src="./img/peças_brancas/white_Castle.png" class="pieces" id="whiteCastle">
-                <img src="./img/peças_brancas/white_King.png" class="pieces" id="whiteking">
-                <img src="./img/peças_brancas/White_Queen.png" class="pieces" id="whiteQueen">
-                <img src="./img/peças_brancas/white_Pone.png" class="pieces" id="whitePone">
-            </div>
-            <div class="wrapper-canvas">
-                <canvas class="canvas" id="canvas"></canvas>
-                <div class="tempo1">
-                    <p id="tempo1">05:00</p>
-                    <p id="placar1"></p>
-                </div>
-                <div class="tempo2">
-                    <p id="placar2"></p>
-                    <p id="tempo2">10:00</p>
-                </div>
-            </div>
-
-            <div class="options">
-                <div>
-                    <p id="vez"> Escolha a dificuldade. </p>
-                </div>
-
-                <div class="option-color" id="option-color">
-                    <input class="input" type="radio" id="brancas" name="opcao" onclick="escolherCor(this.id)">
-                    <label>Brancas</label>
-                    <input class="input" type="radio" id="negras" name="opcao" onclick="escolherCor(this.id)">
-                    <label>Pretas</label>
-                </div>
-                <div class="option-level" id="option-level">
-                    <div>
-                        <input class="input" type="radio" id="facil" name="opcao" onclick="escolherNivel(this.id)">
-                        <label>Fácil</label>
-                    </div>
-                    <div>
-                        <input class="input" type="radio" id="dificil" name="opcao" onclick="escolherNivel(this.id)">
-                        <label>Difícil</label>
-                    </div>
-                </div>
-
-                <div class="div-button">
-                    <input type="button" class="play" id="play" value="Jogar" onclick="play()">
-                </div>
-            </div>
-    </section>
-    <footer>
-        <div class="rodape">
-            <div>
-                <p>Desenvolvido por: <a href="https://rodrigorodrigues90.github.io/Portfolio/" target="blank"> Rodrigo
-                        Rodrigues.</a></p>
-            </div>
-            <div class="divIcons">
-                <div class="contatoIcon">
-                    <a href="https://github.com/RodrigoRodrigues90" target="blank"> <img src="./img/github.svg"
-                            alt="github-icon" title="Github"></a>
-                </div>
-                <div class="contatoIcon">
-                    <a href="https://www.linkedin.com/in/rodrigo-madruga-rodrigues-7478491b3/" target="blank"> <img
-                            src="./img/linkedin.svg" alt="Linkedin-icon" title="Linkedin"></a>
-
-                </div>
-                <div class="contatoIcon">
-                    <a href="https://wa.me/5548998330229" target="blank">
-                        <img src="./img/whats.svg" alt="whatsapp-icon" title="WhatsApp"></a>
-                </div>
-                <div class="contatoIcon">
-                    <a href="mailto:rodrigo.rodrigues0990@hotmail.com"><img src="./img/mail.png"></a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <div id="game-container" class="game-container">
+        <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
+        <div id="tabuleiro" class="tabuleiro"></div>
+        <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
+    </div>
 </body>
 
 </html>
