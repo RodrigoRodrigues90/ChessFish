@@ -1,14 +1,34 @@
 import { Tabuleiro } from './tabuleiro.js';
 import { Clock } from './clock.js';
-import { coordParaAlgebraico, desenharCoordenadas, gerarFEN } from './notations.js';
+import { desenharCoordenadas, gerarFEN, algebraicoParaCoord  } from './notations.js';
+import { obterJogadaStockfish } from './api.js';
 
 const DOM_TABULEIRO = document.getElementById('tabuleiro');
 const DOM_TIMER_W = document.getElementById('timer-w');
 const DOM_TIMER_B = document.getElementById('timer-b');
 const jogo = new Tabuleiro();
 
+//---------------modal de escolha de dificuldade----------------//
+let nivelDificuldade = 8;
+
+const modalDificuldade = document.getElementById('modal-dificuldade');
+const btnsDificuldade = document.querySelectorAll('.btn-dificuldade');
+
+// 1. Passo 1: Selecionar Dificuldade
+btnsDificuldade.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const target = e.currentTarget;
+        nivelDificuldade = parseInt(target.dataset.level, 10);
+        
+        // Transição: Esconde modal de dificuldade e exibe modal de cor
+        modalDificuldade.classList.add('modal-oculto');
+    });
+});
+
 //---------------modal de escolha de cor----------------//
 let corJogador = 'w'; // 'w' para Brancas (padrão) ou 'b' para Pretas
+let corIA = 'b';      // Inverso de corJogador
+let processandoIA = false;
 
 // Captura dos botões de escolha
 const modalCor = document.getElementById('modal-selecao-cor');
@@ -21,12 +41,20 @@ btnPretas.addEventListener('click', () => iniciarJogoComCor('b'));
 
 function iniciarJogoComCor(cor) {
     corJogador = cor;
+    corIA = cor === 'w' ? 'b' : 'w'; // Inverte a cor da IA
     modalCor.classList.add('modal-oculto'); // Oculta o modal
     // Liga ou desliga o reverse com base na cor escolhida
     painelJogo.classList.toggle('visao-pretas', corJogador === 'b');
     // Inicia o relógio somente após a escolha da cor
     relogio.iniciar(); 
     renderizarTabuleiro();
+
+    // Se o jogador escolheu jogar de Pretas, a IA (Brancas) joga primeiro!
+    if (jogo.turno === corIA) {
+        setTimeout(() => {
+            executarTurnoIA();
+        }, 1500); // Pequeno atraso para sensação mais natural
+    }
 }
 
 //------------------------------ Audios ------------------------------//
@@ -40,6 +68,7 @@ music.loop = true;
 music.volume = 0.3; // Volume ajustado para música de fundo não encobrir os efeitos
 
 let musicaIniciada = false;
+let musicaPausada = false;
 
 function tocarSom(audio) {
     if (!audio) return;
@@ -55,6 +84,29 @@ function tentarIniciarMusica() {
         }).catch(() => { });
     }
 }
+// pausa ou retoma a música de fundo ao clicar no botão
+function alternarMusica() {
+    if (musicaPausada) {
+        music.pause();
+        musicaPausada = true;
+    } else {
+        music.play();
+        musicaPausada = false;
+    }
+}
+
+const btnMutarAudio = document.getElementById('btn-mutar-audio');
+const iconeAudio = document.getElementById('icone-audio');
+
+btnMutarAudio.addEventListener('click', () => {
+    musicaPausada = !musicaPausada;
+    
+    // Atualiza o ícone e a classe visual do botão
+    iconeAudio.textContent = musicaPausada ? '🔇' : '🔊';
+    btnMutarAudio.classList.toggle('mutado', musicaPausada);
+    alternarMusica();
+});
+
 
 // ----------- Cria o relógio com 5 minutos para cada jogador -----------//
 // Flags para controlar se o alerta já foi tocado para cada jogador
@@ -183,7 +235,8 @@ let casaSelecionada = null;
 
 function tratarCliqueCasa(linha, coluna) {
     tentarIniciarMusica(); // Tenta ligar a música no primeiro clique
-    if (jogo.jogoFinalizado) return;
+    // Bloqueia cliques se o jogo acabou OU se for a vez da IA jogar
+    if (jogo.jogoFinalizado || jogo.turno === corIA || processandoIA) return;
 
     const corPecaClicada = jogo.obterCorPeca(linha, coluna);
     const clicouEmDestinoValido = movimentosPossiveis.some(m => m.linha === linha && m.coluna === coluna);
@@ -192,16 +245,6 @@ function tratarCliqueCasa(linha, coluna) {
     if (casaSelecionada && clicouEmDestinoValido) {
         const TemPecaInimiga = jogo.obterPeca(linha, coluna);
         
-        // converter notações:
-        const origem = coordParaAlgebraico(casaSelecionada.linha, casaSelecionada.coluna);
-        const destino = coordParaAlgebraico(linha, coluna);
-
-        console.log(`Movimento realizado: de ${origem} para ${destino}`);
-
-        // Gera a FEN da posição atual pós-jogada
-        const fenAtual = gerarFEN(jogo);
-        console.log("FEN Atual:", fenAtual);
-
         jogo.moverPeca(casaSelecionada.linha, casaSelecionada.coluna, linha, coluna);
         limparSelecao();
 
@@ -242,7 +285,10 @@ function tratarCliqueCasa(linha, coluna) {
         } else if (typeof relogio.alternarTurno === 'function') {
             relogio.alternarTurno();
         }
-
+        // Chama a IA imediatamente após a jogada do jogador humano
+        setTimeout(() => {
+            executarTurnoIA();
+        }, 3000); // Pequeno atraso de 300ms para sensação mais natural
         return;
     }
 
@@ -262,4 +308,69 @@ function tratarCliqueCasa(linha, coluna) {
 function limparSelecao() {
     casaSelecionada = null;
     movimentosPossiveis = [];
+}
+
+//=============================== Função para a IA jogar ==============================//
+async function executarTurnoIA() {
+    if (jogo.jogoFinalizado || processandoIA) return;
+
+    processandoIA = true;
+    
+    // 1. Gera a FEN da posição atual para enviar ao Stockfish
+    const fenAtual = gerarFEN(jogo);
+
+    // 2. Chama o backend
+    const resposta = await obterJogadaStockfish(fenAtual, nivelDificuldade);
+
+    if (resposta && resposta.movimento) {
+        const uci = resposta.movimento; // Ex: "e2e4" ou "e7e8q"
+        
+        // Extrai as casas de origem e destino da string UCI
+        const origemStr = uci.substring(0, 2); // Ex: "e2"
+        const destinoStr = uci.substring(2, 4); // Ex: "e4"
+
+        const origem = algebraicoParaCoord(origemStr);
+        const destino = algebraicoParaCoord(destinoStr);
+
+        // A. DETECCÇÃO DE CAPTURA (ANTES DE MOVER)
+        const pecaDestino = jogo.obterPeca(destino.linha, destino.coluna);
+        const ehCaptura = pecaDestino !== ''
+
+        // 3. Executa a jogada no tabuleiro
+        jogo.moverPeca(origem.linha, origem.coluna, destino.linha, destino.coluna);
+        tocarSom(audioMovimento);
+        if (ehCaptura) {
+            tocarSom(audioCaptura);
+        }
+        // 3.1 Checa se a jogada da IA colocou o jogador humano em xeque
+        if (jogo.estaEmXeque(corJogador)) {
+            tocarSom(audioXeque);
+        }
+
+        // 4. Checa Fim de Jogo
+        const estadoFim = jogo.verificarFimDeJogo();
+        if (estadoFim) {
+            relogio.parar();
+            renderizarTabuleiro();
+            if (estadoFim.tipo === 'XEQUE_MATE') {
+                tocarSom(audioXequeMate);
+                alert(`XEQUE-MATE! Vitória das ${estadoFim.vencedor}.`);
+            } else {
+                alert(`EMPATE por afogamento (Stalemate)!`);
+            }
+            processandoIA = false;
+            return;
+        }
+
+        // 5. Alterna relógio e atualiza tela
+        if (typeof relogio.mudarTurno === 'function') {
+            relogio.mudarTurno(jogo.turno);
+        } else if (typeof relogio.alternarTurno === 'function') {
+            relogio.alternarTurno();
+        }
+
+        renderizarTabuleiro();
+    }
+
+    processandoIA = false;
 }

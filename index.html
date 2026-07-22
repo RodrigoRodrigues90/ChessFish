@@ -8,7 +8,32 @@
     <link rel="stylesheet" href="css/estilo.css">
     <script type="module" src="javaScript/main.js" defer></script>
     <script type="module" src="javaScript/tabuleiro.js" defer></script>
+    <link rel="icon" type="image/svg+xml" href="img/stockfish.png" />
 </head>
+
+<!-- Modal 1: Escolha de Dificuldade -->
+<div id="modal-dificuldade" class="modal-overlay">
+    <div class="modal-conteudo">
+        <h2>Escolha a Dificuldade</h2>
+        <div class="opcoes-dificuldade">
+            <button class="btn-opcao btn-dificuldade" data-level="2">
+                <strong>Iniciante</strong>
+                <span>Xadrez para capivaras 🦫</span>
+            </button>
+
+            <button class="btn-opcao btn-dificuldade" data-level="8">
+                <strong>Médio</strong>
+                <span>Desafiador, saiba o que está fazendo 🧠</span>
+            </button>
+
+            <button class="btn-opcao btn-dificuldade" data-level="16">
+                <strong>Avançado</strong>
+                <span>Você não terá chance 🤖</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal de Escolha de Cor -->
 <div id="modal-selecao-cor" class="modal-overlay">
     <div class="modal-conteudo">
@@ -25,12 +50,32 @@
 </div>
 
 <body>
+    <!-- Cabeçalho Principal -->
+    <header class="cabecalho-principal">
+        <img class="img-header" src="./img/stockfish.png">
+        <h1 class="titulo-site">ChessVsStockfish</h1>
+        <button id="btn-mutar-audio" class="btn-audio" title="Alternar Som">
+            <span id="icone-audio">🔊</span>
+        </button>
+    </header>
+
+    <!-- campo de comentarios da IA -->
+    <div class="painel-comentario">
+        <p id="texto-comentario">Aguardando o início da partida...</p>
+    </div>
 
     <div id="game-container" class="game-container">
         <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
         <div id="tabuleiro" class="tabuleiro"></div>
         <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
     </div>
+
+    <!-- Rodapé do Projeto -->
+    <footer class="rodape-creditos">
+        <p>Desenvolvido por <a href="https://rodrigorodrigues90.github.io/Portfolio/" target="_blank"
+                rel="noopener noreferrer">Rodrigo Rodrigues</a></p>
+    </footer>
+
 </body>
 
 </html>
