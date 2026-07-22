@@ -24,23 +24,31 @@ body {
     padding: 15px 20px;
     box-sizing: border-box;
 }
-.img-header{
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-}
 .titulo-site {
     font-family: inherit;
     font-size: 1.8rem;
     font-weight: bold;
-    color: #f0d9b5; /* Cor das casas claras */
+    color: whitesmoke; /* Cor das casas claras */
     margin: 0;
     letter-spacing: 1px;
 }
 
 /* campo de comentarios da IA */
+.img-fish{
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    animation: pulp 2s infinite alternate-reverse;
+}
+@keyframes pulp{
+    0%{
+        box-shadow: rgba(0, 128, 0, 0.569) 0 0 25px 2px;
+    }100%{
+    }
+}
 .painel-comentario {
+    display: flex;
+    gap: 12px;
     width: 100%;
     max-width: 600px;
     background-color: #2b2b2b;
