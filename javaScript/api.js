@@ -1,5 +1,4 @@
-const API_URL = 'https://chess-stockfish-iota.vercel.app/api/jogada-ia';
-const GEMINI_API_URL = '/api/comentario';
+const BASE_URL = 'https://chess-stockfish-iota.vercel.app';
 
 /**
  * Envia o FEN atual para o Stockfish e retorna o movimento calculado.
@@ -9,7 +8,7 @@ const GEMINI_API_URL = '/api/comentario';
  */
 export async function obterJogadaStockfish(fen, level = 12) {
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(`${BASE_URL}/api/jogada-ia`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -37,7 +36,7 @@ export async function obterJogadaStockfish(fen, level = 12) {
  */
 export async function obterComentarioGemini(fen, corIA, lanceExecutado) {
     try {
-        const response = await fetch(GEMINI_API_URL, {
+        const response = await fetch(`${BASE_URL}/api/comentario`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

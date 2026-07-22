@@ -1,8 +1,7 @@
 import { Tabuleiro } from './tabuleiro.js';
 import { Clock } from './clock.js';
 import { desenharCoordenadas, gerarFEN, algebraicoParaCoord } from './notations.js';
-import { obterJogadaStockfish } from './api.js';
-import { obterJogadaGemini } from './api-gemini.js';
+import { obterJogadaStockfish, obterComentarioGemini } from './api.js';
 
 let sessionId = null;
 const elComentario = document.getElementById('texto-comentario');
@@ -339,7 +338,7 @@ async function executarTurnoIA() {
     // 1. Gera a FEN da posição atual para enviar ao Stockfish
     const fenAtual = gerarFEN(jogo);
 
-    // 2. Chama o backend
+    // 2. Chama o backend do Stockfish
     const resposta = await obterJogadaStockfish(fenAtual, nivelDificuldade);
     
     if (resposta && resposta.movimento) {
@@ -352,19 +351,20 @@ async function executarTurnoIA() {
         const origem = algebraicoParaCoord(origemStr);
         const destino = algebraicoParaCoord(destinoStr);
 
-        // A. DETECCÇÃO DE CAPTURA (ANTES DE MOVER)
+        // A. DETECÇÃO DE CAPTURA (ANTES DE MOVER)
         const pecaDestino = jogo.obterPeca(destino.linha, destino.coluna);
-        const ehCaptura = pecaDestino !== ''
+        const ehCaptura = pecaDestino !== '';
 
-        // 3. Executa a jogada no tabuleiro
+        // 3. Executa a jogada no tabuleiro IMEDIATAMENTE
         jogo.moverPeca(origem.linha, origem.coluna, destino.linha, destino.coluna);
-        tocarSom(audioMovimento);
-        if (ehCaptura) {
-            tocarSom(audioCaptura);
-        }
-        // 3.1 Checa se a jogada da IA colocou o jogador humano em xeque
+
+        // 3.1 Dispara os efeitos sonoros correspondentes sem atraso
         if (jogo.estaEmXeque(corJogador)) {
             tocarSom(audioXeque);
+        } else if (ehCaptura) {
+            tocarSom(audioCaptura);
+        } else {
+            tocarSom(audioMovimento);
         }
 
         // 4. Checa Fim de Jogo
@@ -385,19 +385,8 @@ async function executarTurnoIA() {
             processandoIA = false;
             return;
         }
-        // 4.1 CHAMA O GEMINI PARA COMENTAR A JOGADA EXECUTADA
-        const novaFen = gerarFEN(jogo);
-        try {
-            const respostaGemini = await obterComentarioGemini(novaFen, corIA, uci);
-            if (respostaGemini && respostaGemini.comentario && elComentario) {
-                elComentario.textContent = `${respostaGemini.movimento}, ${respostaGemini.comentario}`;
-            }
-        } catch (err) {
-            console.error("Erro ao obter comentário:", err);
-            if (elComentario) elComentario.textContent = "IA realizou o lance.";
-        }
 
-        // 5. Alterna relógio e atualiza tela
+        // 5. Alterna relógio e atualiza a interface visual IMEDIATAMENTE
         if (typeof relogio.mudarTurno === 'function') {
             relogio.mudarTurno(jogo.turno);
         } else if (typeof relogio.alternarTurno === 'function') {
@@ -405,6 +394,26 @@ async function executarTurnoIA() {
         }
 
         renderizarTabuleiro();
+
+        // Libera o estado de processamento para permitir que o usuário continue jogando
+        processandoIA = false;
+
+        // 6. CHAMA O GEMINI EM SEGUNDO PLANO (Não usa 'await' para não travar o jogo)
+        const novaFen = gerarFEN(jogo);
+        if (elComentario) elComentario.textContent = "Analisando a jogada...";
+
+        obterComentarioGemini(novaFen, corIA, uci)
+            .then(respostaGemini => {
+                if (respostaGemini && respostaGemini.comentario && elComentario) {
+                    elComentario.textContent = respostaGemini.comentario;
+                }
+            })
+            .catch(err => {
+                console.error("Erro ao obter comentário:", err);
+                if (elComentario) elComentario.textContent = "IA realizou o lance.";
+            });
+
+        return;
     }
 
     processandoIA = false;
