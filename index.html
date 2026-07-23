@@ -23,7 +23,7 @@
 
             <button class="btn-opcao btn-dificuldade" data-level="8">
                 <strong>Médio</strong>
-                <span>Desafiador, saiba o que está fazendo 🧠</span>
+                <span>Desafiador, você é bom no xadrez 🧠</span>
             </button>
 
             <button class="btn-opcao btn-dificuldade" data-level="16">
@@ -65,10 +65,17 @@
     </div>
 
     <div id="game-container" class="game-container">
-        <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
+        <div class="wrapper">
+            <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
+            <div class="painel-pecas" id="pecas-capturadas-ia"></div>
+        </div>
         <div id="tabuleiro" class="tabuleiro"></div>
-        <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
+        <div class="wrapper">
+            <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
+            <div class="painel-pecas" id="pecas-capturadas-jogador"></div>
+        </div>
     </div>
+
 
     <!-- Rodapé do Projeto -->
     <footer class="rodape-creditos">

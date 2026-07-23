@@ -15,6 +15,10 @@ let corIA = 'b';      // Inverso de corJogador
 let nivelDificuldade = 8;
 let processandoIA = false;
 
+// Arrays para guardar o histórico das peças capturadas
+const capturadasPeloJogador = [];
+const capturadasPelaIA = [];
+
 //--------------- ELEMENTOS DE INTERFACE ----------------//
 const modalCor = document.getElementById('modal-selecao-cor');
 const modalDificuldade = document.getElementById('modal-dificuldade');
@@ -23,6 +27,8 @@ const painelJogo = document.getElementById('game-container');
 const btnBrancas = document.getElementById('btn-jogar-brancas');
 const btnPretas = document.getElementById('btn-jogar-pretas');
 const btnsDificuldade = document.querySelectorAll('.btn-dificuldade');
+const painelPecasJogador = document.getElementById('pecas-capturadas-jogador');
+const painelPecasIA = document.getElementById('pecas-capturadas-ia');
 
 //--------------- PASSO 1: ESCOLHA DA COR ----------------//
 btnBrancas.addEventListener('click', () => selecionarCor('w'));
@@ -249,6 +255,46 @@ function renderizarTabuleiro() {
     desenharCoordenadas(DOM_TABULEIRO, corJogador);
 }
 
+/**
+ * Registra a captura com base no turno de quem efetuou a jogada
+ * @param {string} pecaCapturada - O caractere da peça que foi removida (ex: 'p', 'P', 'q', etc.)
+ * @param {string} turnoAtual - 'w' (Brancas) ou 'b' (Pretas) no momento do lance
+ */
+function registrarCaptura(pecaCapturada, turnoAtual) {
+    if (!pecaCapturada) return;
+
+    // Se o turno de quem capturou for igual à cor do Jogador Humano, vai para o painel dele!
+    if (turnoAtual === corJogador) {
+        capturadasPeloJogador.push(pecaCapturada);
+        console.log(`${capturadasPeloJogador}`)
+    } else {
+        // Caso contrário, quem capturou foi a IA
+        capturadasPelaIA.push(pecaCapturada);
+        console.log(`${capturadasPelaIA}`)
+    }
+
+    renderizarPecasCapturadas();
+}
+
+/**
+ * Atualiza as divs da interface utilizando a const UNICODE_PECAS
+ */
+function renderizarPecasCapturadas() {
+
+
+    if (painelPecasJogador) {
+        painelPecasJogador.innerHTML = capturadasPeloJogador
+            .map(p => `<span class="peca-capturada">${UNICODE_PECAS[p]}</span>`)
+            .join('');
+    }
+
+    if (painelPecasIA) {
+        painelPecasIA.innerHTML = capturadasPelaIA
+            .map(p => `<span class="peca-capturada">${UNICODE_PECAS[p]}</span>`)
+            .join('');
+    }
+}
+
 //--------------- Controle de Seleção e Jogadas ---------------//
 let movimentosPossiveis = [];
 let casaSelecionada = null;
@@ -262,6 +308,7 @@ function tratarCliqueCasa(linha, coluna) {
 
     // Mover peça para destino válido
     if (casaSelecionada && clicouEmDestinoValido) {
+        let jogoTurno = jogo.turno; // Salva o turno antes de mover
         const TemPecaInimiga = jogo.obterPeca(linha, coluna);
 
         jogo.moverPeca(casaSelecionada.linha, casaSelecionada.coluna, linha, coluna);
@@ -292,6 +339,7 @@ function tratarCliqueCasa(linha, coluna) {
         } else {
             if (TemPecaInimiga) {
                 tocarSom(audioCaptura); // Som de captura
+                registrarCaptura(TemPecaInimiga, jogoTurno); // Registra a captura
             }
             tocarSom(audioMovimento);
         }
@@ -304,10 +352,10 @@ function tratarCliqueCasa(linha, coluna) {
         } else if (typeof relogio.alternarTurno === 'function') {
             relogio.alternarTurno();
         }
-        // Chama a IA imediatamente após a jogada do jogador humano
+        // Chama a IA para fazer a jogada
         setTimeout(() => {
             executarTurnoIA();
-        }, 3000); // Pequeno atraso de 300ms para sensação mais natural
+        }, 2000);
         return;
     }
 
@@ -329,6 +377,23 @@ function limparSelecao() {
     movimentosPossiveis = [];
 }
 
+//====função auxiliar para validar movimento de enpassant====//
+function validarEnpassant(origem, destino) {
+    const pecaOrigem = jogo.obterPeca(origem.linha, origem.coluna);
+    const casaEnpassant = jogo.obterPeca(destino.linha, destino.coluna);
+
+    // Verifica se a peça de origem é um peão
+    if (pecaOrigem.toLowerCase() !== 'p') return false;
+
+    // Verifica se o movimento é diagonal e se a casa de destino está vazia
+    const movimentoDiagonal = Math.abs(origem.coluna - destino.coluna) === 1 && Math.abs(origem.linha - destino.linha) === 1;
+    if (!movimentoDiagonal || pecaDestino !== '') return false;
+
+    // Verifica se a casa de destino é a casa de en passant
+    const enpassantDestino = jogo.enPassantTarget;
+    if (!enpassantDestino) return false;
+}     
+
 //=============================== Função para a IA jogar ==============================//
 async function executarTurnoIA() {
     if (jogo.jogoFinalizado || processandoIA) return;
@@ -340,7 +405,7 @@ async function executarTurnoIA() {
 
     // 2. Chama o backend do Stockfish
     const resposta = await obterJogadaStockfish(fenAtual, nivelDificuldade);
-    
+
     if (resposta && resposta.movimento) {
         const uci = resposta.movimento; // Ex: "e2e4" ou "e7e8q"
 
@@ -356,6 +421,7 @@ async function executarTurnoIA() {
         const ehCaptura = pecaDestino !== '';
 
         // 3. Executa a jogada no tabuleiro IMEDIATAMENTE
+        const jogoTurno = jogo.turno; // Salva o turno antes de mover
         jogo.moverPeca(origem.linha, origem.coluna, destino.linha, destino.coluna);
 
         // 3.1 Dispara os efeitos sonoros correspondentes sem atraso
@@ -363,6 +429,7 @@ async function executarTurnoIA() {
             tocarSom(audioXeque);
         } else if (ehCaptura) {
             tocarSom(audioCaptura);
+            registrarCaptura(pecaDestino, jogoTurno); // Registra a captura
         } else {
             tocarSom(audioMovimento);
         }
@@ -376,7 +443,7 @@ async function executarTurnoIA() {
                 tocarSom(audioXequeMate);
                 setTimeout(() => {
                     alert(`XEQUE-MATE! Vitória das ${estadoFim.vencedor}.`);
-                }, 500); 
+                }, 500);
             } else {
                 setTimeout(() => {
                     alert(`EMPATE por afogamento (Stalemate)!`);
@@ -398,20 +465,20 @@ async function executarTurnoIA() {
         // Libera o estado de processamento para permitir que o usuário continue jogando
         processandoIA = false;
 
-        // 6. CHAMA O GEMINI EM SEGUNDO PLANO (Não usa 'await' para não travar o jogo)
-        const novaFen = gerarFEN(jogo);
-        if (elComentario) elComentario.textContent = "Analisando a jogada...";
+        // // 6. CHAMA O GEMINI EM SEGUNDO PLANO (Não usa 'await' para não travar o jogo)
+        // const novaFen = gerarFEN(jogo);
+        // if (elComentario) elComentario.textContent = "Analisando a jogada...";
 
-        obterComentarioGemini(novaFen, corIA, uci)
-            .then(respostaGemini => {
-                if (respostaGemini && respostaGemini.comentario && elComentario) {
-                    elComentario.textContent = respostaGemini.comentario;
-                }
-            })
-            .catch(err => {
-                console.error("Erro ao obter comentário:", err);
-                if (elComentario) elComentario.textContent = "IA realizou o lance.";
-            });
+        // obterComentarioGemini(novaFen, corIA, uci)
+        //     .then(respostaGemini => {
+        //         if (respostaGemini && respostaGemini.comentario && elComentario) {
+        //             elComentario.textContent = respostaGemini.comentario;
+        //         }
+        //     })
+        //     .catch(err => {
+        //         console.error("Erro ao obter comentário:", err);
+        //         if (elComentario) elComentario.textContent = "IA realizou o lance.";
+        //     });
 
         return;
     }
