@@ -21,16 +21,21 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
+    padding: 15px 0;
     box-sizing: border-box;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
+
 .titulo-site {
-    font-family: inherit;
-    font-size: 1.8rem;
+    font-size: 22px;
     font-weight: bold;
     color:#f0d9b5; /* Cor das casas claras */
     margin: 0;
     letter-spacing: 1px;
+}
+#nivel-titulo{
+    font-size: medium;
+    font-weight: lighter;
 }
 
 /* campo de comentarios da IA */
@@ -48,8 +53,9 @@ body {
 }
 .painel-comentario {
     display: flex;
+    align-items: center;
     gap: 12px;
-    width: 100%;
+    width: 90%;
     max-width: 600px;
     background-color: #2b2b2b;
     border-left: 4px solid #f0d9b5;
@@ -59,6 +65,7 @@ body {
     box-sizing: border-box;
     margin-bottom: 1em ;
 }
+
 #texto-comentario {
     margin: 0;
     font-size: 0.95rem;
@@ -71,16 +78,26 @@ body {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px;
+    gap: 1px;
     min-height: fit-content;
     background-color: #f3f1f1;
     border-radius: 6px;
     width: fit-content;
     box-sizing: border-box;
 }
+#pecas-capturadas-ia{
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+#pecas-capturadas-jogador{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
 
 .peca-capturada {
-    font-size: 36px;
+    font-size: 26px;
     opacity: .4;
     transition: transform 0.15s ease-in-out;
 }
@@ -90,8 +107,8 @@ body {
     background-color: #2b2b2b;
     border: 1px solid #444;
     border-radius: 50%;
-    width: 42px;
-    height: 42px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -114,17 +131,15 @@ body {
 .game-container {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Cria um espaçamento uniforme entre os relógios e o tabuleiro */
+    gap: 15px; 
     width: 600px;
     height: 650px;
+    position: relative;
 }
+
 /* Quando o jogador escolhe Pretas, inverte a ordem de todo o fluxo vertical */
 .game-container.visao-pretas {
     flex-direction: column-reverse;
-}
-.wrapper{
-    display: flex;
-    justify-content: space-between;
 }
 
 .timer-conteiner {
@@ -150,8 +165,8 @@ body {
     border-left: 5px solid #baca44;
 }
 /* Quando o tempo estiver acabando (30s) */
-.timer-container.perigo{
-    background-color: #721c24 !important; /* Vermelho escuro de alerta */
+.timer-conteiner.perigo{
+    background-color: #c11324 !important; /* Vermelho escuro de alerta */
     color: #f8d7da !important; /* Texto claro/rosado para contraste */
     border-left: 5px solid #dc3545; /* Borda vermelha viva */
     animation: pulsarPerigo 1s infinite alternate;
@@ -269,6 +284,9 @@ body {
     .game-container{
         width: 90%;
         height: 450px;
+    }
+    .cabecalho-principal{
+        padding: 15px 20px;
     }
 }
 
@@ -419,4 +437,57 @@ body {
 .btn-dificuldade span {
     font-size: 0.85rem;
     color: #cccccc;
+}
+
+/* controles de jogo */
+.game-controls {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    padding: 1em 0;
+    max-width: 480px;
+    gap: 2px;
+}
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #363431;
+    border: 1px solid #45433f;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Efeito Hover quando HABILITADO */
+.btn-action:hover:not(:disabled) {
+    background-color: #484540;
+    border-color: #baca44;
+    color: #baca44;
+    transform: translateY(-1px);
+}
+
+.btn-action:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-action:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: #262522;
+    border-color: #33312e;
+    box-shadow: none;
+}
+
+#descricao-fim-de-jogo{
+    font-weight:bold;
+    font-size: medium;
+    margin-bottom: 1em;
 }

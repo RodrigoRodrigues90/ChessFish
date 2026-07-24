@@ -2,8 +2,9 @@ import { Tabuleiro } from './tabuleiro.js';
 import { Clock } from './clock.js';
 import { desenharCoordenadas, gerarFEN, algebraicoParaCoord } from './notations.js';
 import { obterJogadaStockfish, obterComentarioGemini } from './api.js';
+import { exibirModalFimDeJogo, fecharModalFimDeJogo } from './fimdejogo.js';
 
-let sessionId = null;
+let sessionId = null;//desativado temporariamente 
 const elComentario = document.getElementById('texto-comentario');
 const DOM_TABULEIRO = document.getElementById('tabuleiro');
 const DOM_TIMER_W = document.getElementById('timer-w');
@@ -14,12 +15,16 @@ let corJogador = 'w'; // 'w' para Brancas (padrão) ou 'b' para Pretas
 let corIA = 'b';      // Inverso de corJogador
 let nivelDificuldade = 8;
 let processandoIA = false;
+let estadoAnterior = null;
+let podeDesfazer = false;
+let oportunidade = 3;
 
 // Arrays para guardar o histórico das peças capturadas
 const capturadasPeloJogador = [];
 const capturadasPelaIA = [];
 
 //--------------- ELEMENTOS DE INTERFACE ----------------//
+const nivelTitulo = document.getElementById('nivel-titulo')
 const modalCor = document.getElementById('modal-selecao-cor');
 const modalDificuldade = document.getElementById('modal-dificuldade');
 const painelJogo = document.getElementById('game-container');
@@ -29,6 +34,8 @@ const btnPretas = document.getElementById('btn-jogar-pretas');
 const btnsDificuldade = document.querySelectorAll('.btn-dificuldade');
 const painelPecasJogador = document.getElementById('pecas-capturadas-jogador');
 const painelPecasIA = document.getElementById('pecas-capturadas-ia');
+const btnDesfazer = document.getElementById('btn-desfazer');
+const btnDesistir = document.getElementById('btn-desistir');
 
 //--------------- PASSO 1: ESCOLHA DA COR ----------------//
 btnBrancas.addEventListener('click', () => selecionarCor('w'));
@@ -51,11 +58,25 @@ btnsDificuldade.forEach(btn => {
 
         // Oculta o modal de dificuldade
         modalDificuldade.classList.add('modal-oculto');
+        definirDificuldade(nivelDificuldade);
 
         // Inicia a partida com as configurações definidas
         iniciarJogo();
     });
 });
+function definirDificuldade(nivel) {
+    switch (nivel) {
+        case 1:
+            nivelTitulo.textContent = '(Iniciante)';
+            break;
+        case 8:
+            nivelTitulo.textContent = '(Medio)';
+            break;
+        case 16:
+            nivelTitulo.textContent = '(Avançado)';
+            break;
+    }
+}
 
 function iniciarJogo() {
     // Cria um ID de sessão único para esta partida 
@@ -141,7 +162,6 @@ let alertaTocadoB = false;
 
 const relogio = new Clock(
     5,
-    // Função onTick: Executada a cada 1 segundo pelo relógio
     (dados) => {
         DOM_TIMER_W.textContent = dados.w;
         DOM_TIMER_B.textContent = dados.b;
@@ -150,33 +170,43 @@ const relogio = new Clock(
         const elPreta = document.querySelector('.timer-conteiner.preto');
 
         if (elBranca && elPreta) {
+            // Conversão garantida para número
+            const segW = Number(dados.wSegundos);
+            const segB = Number(dados.bSegundos);
+
+            const emPerigoW = segW <= 30;
+            const emPerigoB = segB <= 30;
+
+            // 1. Marca/Desmarca a classe 'ativo' conforme o turno
             elBranca.classList.toggle('ativo', dados.turnoAtivo === 'w');
             elPreta.classList.toggle('ativo', dados.turnoAtivo === 'b');
 
-            const emPerigoW = dados.wSegundos <= 30;
-            const emPerigoB = dados.bSegundos <= 30;
+            // 2. Aplica/Remove a classe 'perigo'
+            elBranca.classList.toggle('perigo', emPerigoW);
+            elPreta.classList.toggle('perigo', emPerigoB);
 
-            // Toca o som APENAS UMA VEZ no momento exato em que entra nos 30 segundos
+            // 3. Toca o alerta sonoro apenas na entrada dos 30s
             if (emPerigoW && !alertaTocadoW) {
                 tocarSom(audioAlerta);
                 alertaTocadoW = true;
-                elBranca.classList.remove('ativo'); // Remove a classe ativo para evitar conflito visual
-                elBranca.classList.add('perigo');
             }
 
             if (emPerigoB && !alertaTocadoB) {
                 tocarSom(audioAlerta);
                 alertaTocadoB = true;
-                elPreta.classList.remove('ativo'); // Remove a classe ativo para evitar conflito visual
-                elPreta.classList.add('perigo');
             }
         }
     },
     (quemPerdeu) => {
         jogo.jogoFinalizado = true;
-        const vencedor = quemPerdeu === 'w' ? 'Pretas' : 'Brancas';
-        alert(`Acabou o tempo! As ${vencedor} vencem.`);
-        window.location.reload();
+        tocarSom(audioXequeMate);
+        const jogadorVenceu = quemPerdeu !== corJogador;
+        if (jogadorVenceu) {
+            finalizarPartida('vitoria', 'TEMPO')
+        }
+        else {
+            finalizarPartida('derrota', 'TEMPO')
+        }
     }
 );
 
@@ -266,19 +296,15 @@ function registrarCaptura(pecaCapturada, turnoAtual) {
     // Se o turno de quem capturou for igual à cor do Jogador Humano, vai para o painel dele!
     if (turnoAtual === corJogador) {
         capturadasPeloJogador.push(pecaCapturada);
-        console.log(`${capturadasPeloJogador}`)
     } else {
         // Caso contrário, quem capturou foi a IA
         capturadasPelaIA.push(pecaCapturada);
-        console.log(`${capturadasPelaIA}`)
     }
 
     renderizarPecasCapturadas();
 }
 
-/**
- * Atualiza as divs da interface utilizando a const UNICODE_PECAS
- */
+//atualiza os paineis de peças capturadas para o jogador e para a IA
 function renderizarPecasCapturadas() {
 
 
@@ -293,6 +319,22 @@ function renderizarPecasCapturadas() {
             .map(p => `<span class="peca-capturada">${UNICODE_PECAS[p]}</span>`)
             .join('');
     }
+}
+//atualiza painel de comentario
+function simularPensamentoIAComentario() {
+    let pontos = 0
+    let pensamento = null
+    //anular qualquer interval ativo por segurança
+    if (pensamento) clearInterval(pensamento)
+    pensamento = setInterval(() => {
+        if (processandoIA) {
+            clearInterval(pensamento);
+            pensamento = null;
+            return
+        }
+        pontos = (pontos + 1) % 4; // Alterna ciclicamente entre 0, 1, 2 e 3
+        elComentario.textContent = 'Pensando' + '.'.repeat(pontos);
+    }, 400);
 }
 
 //--------------- Controle de Seleção e Jogadas ---------------//
@@ -309,40 +351,57 @@ function tratarCliqueCasa(linha, coluna) {
     // Mover peça para destino válido
     if (casaSelecionada && clicouEmDestinoValido) {
         let jogoTurno = jogo.turno; // Salva o turno antes de mover
+
+        //============função undo============//
+        salvarEstadoJogo(); // Salva o estado atual antes de mover para permitir desfazer
+        podeDesfazer = false; // Permite desfazer após salvar o estado
+        //===================================//
+
+        //para checagem de movimento de enpassant 
+        const pecaOrigem = jogo.obterPeca(casaSelecionada.linha, casaSelecionada.coluna);
+        const ehEnpassant = validarEnpassant(pecaOrigem, casaSelecionada, { linha, coluna });
+
+        //para checagem de captura de peça inimiga
         const TemPecaInimiga = jogo.obterPeca(linha, coluna);
 
+        //realizar movimento
         jogo.moverPeca(casaSelecionada.linha, casaSelecionada.coluna, linha, coluna);
         limparSelecao();
 
-        // Checa Xeque-Mate ou Empate após a jogada
+        //Checa Xeque-Mate ou Empate após a jogada
         const estadoFim = jogo.verificarFimDeJogo ? jogo.verificarFimDeJogo() : null;
 
         if (estadoFim) {
             relogio.parar();
             renderizarTabuleiro();
             if (estadoFim.tipo === 'XEQUE_MATE') {
+                const resultado = estadoFim.vencedor === corJogador ? 'vitoria' : 'derrota';
                 tocarSom(audioXequeMate);
                 setTimeout(() => {
-                    alert(`XEQUE-MATE! Vitória das ${estadoFim.vencedor}.`);
+                    finalizarPartida(resultado, estadoFim.tipo)
                 }, 1000);
             } else {
                 setTimeout(() => {
-                    alert(`EMPATE por afogamento!`);
+                    finalizarPartida('empate', estadoFim.tipo)
                 }, 1000);
             }
             return;
         }
 
+        if (TemPecaInimiga) {
+            tocarSom(audioCaptura); // Som de captura
+            registrarCaptura(TemPecaInimiga, jogoTurno); // Registra a captura
+        }
+        else if (ehEnpassant) { //se não tiver peça inimiga, mas for um movimento de enpassant, registra a captura
+            tocarSom(audioCaptura); // Som de captura
+            registrarCaptura('p', jogoTurno); // Registra a captura
+        }
         // Toca som adequado para a jogada (Xeque vs Movimento Padrão)
         if (jogo.estaEmXeque && jogo.estaEmXeque(jogo.turno)) {
             tocarSom(audioXeque);
-        } else {
-            if (TemPecaInimiga) {
-                tocarSom(audioCaptura); // Som de captura
-                registrarCaptura(TemPecaInimiga, jogoTurno); // Registra a captura
-            }
-            tocarSom(audioMovimento);
         }
+        tocarSom(audioMovimento);
+
 
         renderizarTabuleiro();
 
@@ -352,6 +411,7 @@ function tratarCliqueCasa(linha, coluna) {
         } else if (typeof relogio.alternarTurno === 'function') {
             relogio.alternarTurno();
         }
+        simularPensamentoIAComentario();
         // Chama a IA para fazer a jogada
         setTimeout(() => {
             executarTurnoIA();
@@ -372,27 +432,26 @@ function tratarCliqueCasa(linha, coluna) {
     renderizarTabuleiro();
 }
 
+//==========função para limpar seleção e movimentos possíveis==========//
 function limparSelecao() {
     casaSelecionada = null;
     movimentosPossiveis = [];
 }
 
 //====função auxiliar para validar movimento de enpassant====//
-function validarEnpassant(origem, destino) {
-    const pecaOrigem = jogo.obterPeca(origem.linha, origem.coluna);
-    const casaEnpassant = jogo.obterPeca(destino.linha, destino.coluna);
+function validarEnpassant(pecaOrigem, origem, destino) {
+    const ehPiao = pecaOrigem.toLowerCase() === 'p';
+    const ehDiagonal = Math.abs(origem.coluna - destino.coluna) === 1;
 
-    // Verifica se a peça de origem é um peão
-    if (pecaOrigem.toLowerCase() !== 'p') return false;
+    // Certifica que existe um alvo de En Passant ativo
+    if (!jogo.alvoEnPassant) return false;
 
-    // Verifica se o movimento é diagonal e se a casa de destino está vazia
-    const movimentoDiagonal = Math.abs(origem.coluna - destino.coluna) === 1 && Math.abs(origem.linha - destino.linha) === 1;
-    if (!movimentoDiagonal || pecaDestino !== '') return false;
+    // Compara linha e coluna de destino com o alvoEnPassant
+    const ehDestinoAlvo = destino.linha === jogo.alvoEnPassant.linha &&
+        destino.coluna === jogo.alvoEnPassant.coluna;
 
-    // Verifica se a casa de destino é a casa de en passant
-    const enpassantDestino = jogo.enPassantTarget;
-    if (!enpassantDestino) return false;
-}     
+    return ehPiao && ehDiagonal && ehDestinoAlvo;
+}
 
 //=============================== Função para a IA jogar ==============================//
 async function executarTurnoIA() {
@@ -420,19 +479,25 @@ async function executarTurnoIA() {
         const pecaDestino = jogo.obterPeca(destino.linha, destino.coluna);
         const ehCaptura = pecaDestino !== '';
 
+        const ehEnpassant = validarEnpassant(jogo.obterPeca(origem.linha, origem.coluna), origem, destino);
+
         // 3. Executa a jogada no tabuleiro IMEDIATAMENTE
         const jogoTurno = jogo.turno; // Salva o turno antes de mover
         jogo.moverPeca(origem.linha, origem.coluna, destino.linha, destino.coluna);
 
         // 3.1 Dispara os efeitos sonoros correspondentes sem atraso
-        if (jogo.estaEmXeque(corJogador)) {
-            tocarSom(audioXeque);
-        } else if (ehCaptura) {
+        if (ehCaptura) {
             tocarSom(audioCaptura);
             registrarCaptura(pecaDestino, jogoTurno); // Registra a captura
-        } else {
-            tocarSom(audioMovimento);
         }
+        else if (ehEnpassant) { //se não tiver peça inimiga, mas for um movimento de enpassant, registra a captura
+            tocarSom(audioCaptura); // Som de captura
+            registrarCaptura('p', jogoTurno); // Registra a captura
+        }
+        if (jogo.estaEmXeque(corJogador)) { //se for um xeque toca o som
+            tocarSom(audioXeque);
+        }
+        tocarSom(audioMovimento); // Som de movimento padrão
 
         // 4. Checa Fim de Jogo
         const estadoFim = jogo.verificarFimDeJogo();
@@ -440,14 +505,15 @@ async function executarTurnoIA() {
             relogio.parar();
             renderizarTabuleiro();
             if (estadoFim.tipo === 'XEQUE_MATE') {
+                const resultado = estadoFim.vencedor === corJogador ? 'vitoria' : 'derrota';
                 tocarSom(audioXequeMate);
                 setTimeout(() => {
-                    alert(`XEQUE-MATE! Vitória das ${estadoFim.vencedor}.`);
-                }, 500);
+                    finalizarPartida(resultado, estadoFim.tipo)
+                }, 1000);
             } else {
                 setTimeout(() => {
-                    alert(`EMPATE por afogamento (Stalemate)!`);
-                }, 500);
+                    finalizarPartida('empate', estadoFim.tipo)
+                }, 1000);
             }
             processandoIA = false;
             return;
@@ -465,23 +531,150 @@ async function executarTurnoIA() {
         // Libera o estado de processamento para permitir que o usuário continue jogando
         processandoIA = false;
 
-        // // 6. CHAMA O GEMINI EM SEGUNDO PLANO (Não usa 'await' para não travar o jogo)
-        // const novaFen = gerarFEN(jogo);
-        // if (elComentario) elComentario.textContent = "Analisando a jogada...";
+        // 6. CHAMA O GEMINI EM SEGUNDO PLANO (Não usa 'await' para não travar o jogo)
+        //     const novaFen = gerarFEN(jogo);
+        //     if (elComentario) elComentario.textContent = "Analisando a jogada...";
 
-        // obterComentarioGemini(novaFen, corIA, uci)
-        //     .then(respostaGemini => {
-        //         if (respostaGemini && respostaGemini.comentario && elComentario) {
-        //             elComentario.textContent = respostaGemini.comentario;
-        //         }
-        //     })
-        //     .catch(err => {
-        //         console.error("Erro ao obter comentário:", err);
-        //         if (elComentario) elComentario.textContent = "IA realizou o lance.";
-        //     });
+        //     obterComentarioGemini(novaFen, corIA, uci)
+        //         .then(respostaGemini => {
+        //             if (respostaGemini && respostaGemini.comentario && elComentario) {
+        //                 elComentario.textContent = respostaGemini.comentario;
+        //             }
+        //         })
+        //         .catch(err => {
+        //             console.error("Erro ao obter comentário:", err);
+        //             if (elComentario) elComentario.textContent = "IA realizou o lance.";
+        //         });
 
-        return;
+        //     return;
+
+        //6.exibe comentário da IA sobre a jogada feita
+        elComentario.textContent = `Joguei ${uci}.`;
+
     }
 
     processandoIA = false;
+
+    // A IA terminou de jogar: libera o botão de desfazer
+    podeDesfazer = true;
+    atualizarBotaoDesfazer();
 }
+
+//==============Função para desfazer ultima jogada==================//
+btnDesfazer.addEventListener('click', desfazerJogada);
+function salvarEstadoJogo() {
+    estadoAnterior = {
+        // Copia a matriz do tabuleiro
+        grid: JSON.parse(JSON.stringify(jogo.grid)),
+        turno: jogo.turno,
+        direitosRoque: JSON.parse(JSON.stringify(jogo.direitosRoque)),
+        alvoEnPassant: jogo.alvoEnPassant ? { ...jogo.alvoEnPassant } : null,
+        jogoFinalizado: jogo.jogoFinalizado,
+
+        // Copia os arrays inteiros de capturas exatamente como estão agora
+        capturadasPeloJogador: [...capturadasPeloJogador],
+        capturadasPelaIA: [...capturadasPelaIA]
+    };
+}
+function desfazerJogada() {
+    if (!podeDesfazer || !estadoAnterior || processandoIA) return;
+
+
+    // 1. Restaura o estado da classe do jogo
+    jogo.grid = JSON.parse(JSON.stringify(estadoAnterior.grid));
+    jogo.turno = estadoAnterior.turno;
+    jogo.direitosRoque = JSON.parse(JSON.stringify(estadoAnterior.direitosRoque));
+    jogo.alvoEnPassant = estadoAnterior.alvoEnPassant ? { ...estadoAnterior.alvoEnPassant } : null;
+    jogo.jogoFinalizado = estadoAnterior.jogoFinalizado;
+
+    // 2. Restaura os arrays de capturas copiando os valores salvos de volta
+    capturadasPeloJogador.length = 0;
+    capturadasPeloJogador.push(...estadoAnterior.capturadasPeloJogador);
+
+    capturadasPelaIA.length = 0;
+    capturadasPelaIA.push(...estadoAnterior.capturadasPelaIA);
+
+    // 3. Aplica as regras de trava do botão (só pode desfazer 1x)
+    oportunidade--;
+    podeDesfazer = false;
+    estadoAnterior = null;
+    atualizarBotaoDesfazer();
+
+    // 4. Sincroniza o turno do relógio para o jogador
+    if (typeof relogio.mudarTurno === 'function') {
+        relogio.mudarTurno(jogo.turno);
+    } else if (typeof relogio.alternarTurno === 'function') {
+        relogio.alternarTurno();
+    }
+
+    // 5. Redesenha a tela e o painel de capturas
+    if (typeof renderizarPecasCapturadas === 'function') {
+        renderizarPecasCapturadas();
+    }
+    renderizarTabuleiro();
+    tocarSom(audioMovimento);
+}
+
+// Auxiliar visual do botão no HTML
+function atualizarBotaoDesfazer() {
+    if (btnDesfazer) {
+        const estaPermitido = podeDesfazer && nivelDificuldade < 9 && oportunidade > 0;
+        btnDesfazer.disabled = !estaPermitido;
+
+    }
+}
+
+//===========abandonar==========//
+btnDesistir.addEventListener('click', desistirPartida);
+function desistirPartida() {
+    if (jogo.jogoFinalizado || processandoIA) return;
+
+    const confirmou = confirm("Tem certeza de que deseja desistir da partida?");
+    if (!confirmou) return;
+
+    // Encerra a partida
+    jogo.jogoFinalizado = true;
+    if (relogio && typeof relogio.parar === 'function') {
+        relogio.parar();
+    }
+
+    // Trava os controles
+    podeDesfazer = false;
+    atualizarBotaoDesfazer();
+
+    finalizarPartida('derrota', 'DESISTENCIA');
+}
+
+/**
+ * Função centralizada para encerrar a partida
+ */
+function finalizarPartida(resultado, motivo) {
+    jogo.jogoFinalizado = true;
+
+    if (relogio && typeof relogio.parar === 'function') {
+        relogio.parar();
+    }
+    console.log(resultado);
+
+    podeDesfazer = false;
+    atualizarBotaoDesfazer();
+
+    // Transforma o botão de Desistir em botão de Recomeçar
+    btnDesistir.textContent = '🔄 Recomeçar';
+    btnDesistir.addEventListener('click', () => {
+        setTimeout(() => {
+            window.location.reload();
+        })
+    })
+    // comentario do stockfish
+    if (resultado === 'vitoria') {
+        elComentario.textContent = "Fim de jogo. @#$*&"
+    }else{
+        elComentario.textContent = "Fim de jogo. kkkkk"
+    }
+
+    // Exibe o modal dinâmico
+    exibirModalFimDeJogo(resultado, nivelDificuldade, motivo);
+}
+
+

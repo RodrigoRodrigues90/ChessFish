@@ -49,10 +49,19 @@
     </div>
 </div>
 
+<!-- Modal de fim de jogo -->
+<div id="modal-fim-de-jogo" class="modal-overlay modal-oculto">
+    <div class="modal-conteudo">
+        <h2 id="titulo-fim-de-jogo"></h2>
+        <p class="descricao" id="descricao-fim-de-jogo"></p>
+        <button class="btn-action">Ok</button>
+    </div>
+</div>
+
 <body>
     <!-- Cabeçalho Principal -->
     <header class="cabecalho-principal">
-        <h1 class="titulo-site">ChessVsStockfish</h1>
+        <h1 class="titulo-site">ChessVsStockfish<span id="nivel-titulo"></span></h1>
         <button id="btn-mutar-audio" class="btn-audio" title="Alternar Som">
             <span id="icone-audio">🔊</span>
         </button>
@@ -65,15 +74,29 @@
     </div>
 
     <div id="game-container" class="game-container">
-        <div class="wrapper">
-            <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
-            <div class="painel-pecas" id="pecas-capturadas-ia"></div>
-        </div>
+        <div class="painel-pecas" id="pecas-capturadas-ia"></div>
+        <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
         <div id="tabuleiro" class="tabuleiro"></div>
-        <div class="wrapper">
-            <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
-            <div class="painel-pecas" id="pecas-capturadas-jogador"></div>
-        </div>
+        <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
+        <div class="painel-pecas" id="pecas-capturadas-jogador"></div>
+    </div>
+
+    <div class="game-controls">
+        <button id="btn-desfazer" class="btn-action" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7v6h6"></path>
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+            </svg>
+            Desfazer Jogada
+        </button>
+        <button id="btn-desistir" class="btn-action">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+            <line x1="4" y1="22" x2="4" y2="15"></line>
+        </svg>
+        Desistir
+    </button>
     </div>
 
 

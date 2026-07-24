@@ -344,7 +344,7 @@ export class Tabuleiro {
             if (emXeque) {
                 return {
                     tipo: 'XEQUE_MATE',
-                    vencedor: this.turno === 'w' ? 'Pretas' : 'Brancas'
+                    vencedor: this.turno === 'w' ? 'b' : 'w'
                 };
             } else {
                 return {
