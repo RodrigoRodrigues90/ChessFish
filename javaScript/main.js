@@ -1,7 +1,7 @@
 import { Tabuleiro } from './tabuleiro.js';
 import { Clock } from './clock.js';
 import { desenharCoordenadas, gerarFEN, algebraicoParaCoord, converterParaUCI } from './notations.js';
-import { obterJogadaStockfish, obterComentarioGemini } from './api.js';
+import { obterJogadaStockfish } from './api.js';
 import { exibirModalFimDeJogo, fecharModalFimDeJogo } from './fimdejogo.js';
 
 let sessionId = null;//desativado temporariamente 
@@ -552,7 +552,7 @@ async function executarTurnoIA() {
         processandoIA = false;
 
         //6.exibe comentário da IA sobre a jogada feita
-        elComentario.textContent = `Joguei ${uci}. ${resposta.abertura ? "Abertura: " + resposta.abertura.nome : ""}`;
+        elComentario.textContent = `Joguei ${uci}. ${resposta.abertura ? resposta.abertura.nome : ""}`;
         console.log(resposta.abertura)
         pararPensamentoIAComentario();
     }

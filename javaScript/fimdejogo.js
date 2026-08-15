@@ -46,7 +46,7 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
                 descricao = 'Não desanime! O xadrez exige prática, tente de novo.😉';
             }
             else if (nivelDificuldade <= 10) {
-                descricao = 'Difícil? Talvez seja melhor ir para o nível capivara.🦫';
+                descricao = 'Difícil? Talvez seja melhor ir para o nível capivara.🦛';
             }
             else {
                 descricao = 'Nível avançado? Eu avisei que você não teria chance!🤖';
