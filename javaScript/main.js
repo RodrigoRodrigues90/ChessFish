@@ -534,6 +534,7 @@ async function executarTurnoIA() {
                     finalizarPartida('empate', estadoFim.tipo)
                 }, 1000);
             }
+            pararPensamentoIAComentario();
             limparHistorico();
             processandoIA = false;
             return;
@@ -552,7 +553,7 @@ async function executarTurnoIA() {
         processandoIA = false;
 
         //6.exibe comentário da IA sobre a jogada feita
-        elComentario.textContent = `Joguei ${uci}. ${resposta.abertura ? resposta.abertura.nome : ""}`;
+        elComentario.textContent = `Joguei ${uci}. ${resposta.abertura ? resposta.abertura.name + resposta.abertura.summary : ""}`;
         console.log(resposta.abertura)
         pararPensamentoIAComentario();
     }
