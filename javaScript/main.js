@@ -1,6 +1,6 @@
 import { Tabuleiro } from './tabuleiro.js';
 import { Clock } from './clock.js';
-import { desenharCoordenadas, gerarFEN, algebraicoParaCoord } from './notations.js';
+import { desenharCoordenadas, gerarFEN, algebraicoParaCoord, converterParaUCI } from './notations.js';
 import { obterJogadaStockfish, obterComentarioGemini } from './api.js';
 import { exibirModalFimDeJogo, fecharModalFimDeJogo } from './fimdejogo.js';
 
@@ -18,6 +18,7 @@ let processandoIA = false;
 let estadoAnterior = null;
 let podeDesfazer = false;
 let oportunidade = 3;
+let historicoLista = [];
 
 // Arrays para guardar o histórico das peças capturadas
 const capturadasPeloJogador = [];
@@ -69,10 +70,10 @@ function definirDificuldade(nivel) {
         case 1:
             nivelTitulo.textContent = '(Iniciante)';
             break;
-        case 8:
+        case 10:
             nivelTitulo.textContent = '(Medio)';
             break;
-        case 16:
+        case 20:
             nivelTitulo.textContent = '(Avançado)';
             break;
     }
@@ -320,21 +321,31 @@ function renderizarPecasCapturadas() {
             .join('');
     }
 }
-//atualiza painel de comentario
+let simular_pensamento_IA = null;
 function simularPensamentoIAComentario() {
-    let pontos = 0
-    let pensamento = null
-    //anular qualquer interval ativo por segurança
-    if (pensamento) clearInterval(pensamento)
-    pensamento = setInterval(() => {
-        if (processandoIA) {
-            clearInterval(pensamento);
-            pensamento = null;
-            return
-        }
-        pontos = (pontos + 1) % 4; // Alterna ciclicamente entre 0, 1, 2 e 3
+    let pontos = 0;
+    
+    // limpar intervalo rodando em paralelo
+    pararPensamentoIAComentario();
+
+    simular_pensamento_IA = setInterval(() => {
+        pontos = (pontos + 1) % 4; // Alterna entre 0, 1, 2 e 3
         elComentario.textContent = 'Pensando' + '.'.repeat(pontos);
     }, 400);
+}
+
+function pararPensamentoIAComentario() {
+    if (simular_pensamento_IA) {
+        clearInterval(simular_pensamento_IA);
+        simular_pensamento_IA = null;
+    }
+}
+
+function registrarHistorico(lanceUCI){
+   historicoLista.push(lanceUCI);
+}
+function limparHistorico(){
+   historicoLista = [];
 }
 
 //--------------- Controle de Seleção e Jogadas ---------------//
@@ -356,6 +367,12 @@ function tratarCliqueCasa(linha, coluna) {
         salvarEstadoJogo(); // Salva o estado atual antes de mover para permitir desfazer
         podeDesfazer = false; // Permite desfazer após salvar o estado
         //===================================//
+        
+        // [HISTÓRICO UCI] Converter coordenadas de origem e destino
+        const origemUCI = converterParaUCI(casaSelecionada.linha, casaSelecionada.coluna);
+        const destinoUCI = converterParaUCI(linha, coluna);
+        const lanceUCI = `${origemUCI}${destinoUCI}`;
+        registrarHistorico(lanceUCI); // Adiciona ao histórico de jogadas
 
         //para checagem de movimento de enpassant 
         const pecaOrigem = jogo.obterPeca(casaSelecionada.linha, casaSelecionada.coluna);
@@ -373,6 +390,7 @@ function tratarCliqueCasa(linha, coluna) {
 
         if (estadoFim) {
             relogio.parar();
+            limparHistorico();
             renderizarTabuleiro();
             if (estadoFim.tipo === 'XEQUE_MATE') {
                 const resultado = estadoFim.vencedor === corJogador ? 'vitoria' : 'derrota';
@@ -463,10 +481,11 @@ async function executarTurnoIA() {
     const fenAtual = gerarFEN(jogo);
 
     // 2. Chama o backend do Stockfish
-    const resposta = await obterJogadaStockfish(fenAtual, nivelDificuldade);
+    const resposta = await obterJogadaStockfish(fenAtual, nivelDificuldade, historicoLista);
 
     if (resposta && resposta.movimento) {
         const uci = resposta.movimento; // Ex: "e2e4" ou "e7e8q"
+        registrarHistorico(uci); // Adiciona ao histórico de jogadas
 
         // Extrai as casas de origem e destino da string UCI
         const origemStr = uci.substring(0, 2); // Ex: "e2"
@@ -515,6 +534,7 @@ async function executarTurnoIA() {
                     finalizarPartida('empate', estadoFim.tipo)
                 }, 1000);
             }
+            limparHistorico();
             processandoIA = false;
             return;
         }
@@ -531,28 +551,11 @@ async function executarTurnoIA() {
         // Libera o estado de processamento para permitir que o usuário continue jogando
         processandoIA = false;
 
-        // 6. CHAMA O GEMINI EM SEGUNDO PLANO (Não usa 'await' para não travar o jogo)
-        //     const novaFen = gerarFEN(jogo);
-        //     if (elComentario) elComentario.textContent = "Analisando a jogada...";
-
-        //     obterComentarioGemini(novaFen, corIA, uci)
-        //         .then(respostaGemini => {
-        //             if (respostaGemini && respostaGemini.comentario && elComentario) {
-        //                 elComentario.textContent = respostaGemini.comentario;
-        //             }
-        //         })
-        //         .catch(err => {
-        //             console.error("Erro ao obter comentário:", err);
-        //             if (elComentario) elComentario.textContent = "IA realizou o lance.";
-        //         });
-
-        //     return;
-
         //6.exibe comentário da IA sobre a jogada feita
-        elComentario.textContent = `Joguei ${uci}.`;
-
+        elComentario.textContent = `Joguei ${uci}. ${resposta.abertura ? "Abertura: " + resposta.abertura.nome : ""}`;
+        console.log(resposta.abertura)
+        pararPensamentoIAComentario();
     }
-
     processandoIA = false;
 
     // A IA terminou de jogar: libera o botão de desfazer

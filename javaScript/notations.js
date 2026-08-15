@@ -124,3 +124,11 @@ export function desenharCoordenadas(domTabuleiro, corJogador = 'w') {
         }
     });
 }
+/**
+ * Converte coordenadas (linha, coluna) de matriz 0-7 para notação UCI (ex: linha 6, col 4 -> 'e2')
+ */
+export function converterParaUCI(linha, coluna) {
+    const colunas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const fileira = 8 - linha;
+    return `${colunas[coluna]}${fileira}`;
+}

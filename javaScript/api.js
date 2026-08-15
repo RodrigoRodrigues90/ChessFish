@@ -1,4 +1,5 @@
-const BASE_URL = 'https://chess-stockfish-iota.vercel.app';
+//const BASE_URL = 'https://chess-stockfish-iota.vercel.app';
+const BASE_URL = 'http://localhost:3000';
 
 /**
  * Envia o FEN atual para o Stockfish e retorna o movimento calculado.
@@ -6,14 +7,14 @@ const BASE_URL = 'https://chess-stockfish-iota.vercel.app';
  * @param {number} level - Profundidade de análise do Stockfish
  * @returns {Promise<{movimento: string, ismate?: string}>}
  */
-export async function obterJogadaStockfish(fen, level = 12) {
+export async function obterJogadaStockfish(fen, level = 12, historicoLista) {
     try {
         const response = await fetch(`${BASE_URL}/api/jogada-ia`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ fen, level })
+            body: JSON.stringify({ fen, level , historico: historicoLista})
         });
 
         if (!response.ok) {
@@ -21,7 +22,7 @@ export async function obterJogadaStockfish(fen, level = 12) {
         }
 
         const data = await response.json();
-        return data; // Retorna { movimento: 'e2e4', ismate: 'cp' / 'mate' }
+        return data;
     } catch (error) {
         console.error("Falha ao comunicar com o backend do Stockfish:", error);
         return null;

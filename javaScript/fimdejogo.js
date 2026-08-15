@@ -2,7 +2,7 @@
  * Exibe o modal de fim de jogo com título e descrição personalizados.
  * 
  * @param {string|null} resultado - 'vitoria' | 'derrota' | 'empate'
- * @param {number} nivelDificuldade - Nível da IA (1 a 20 ou similar)
+ * @param {number} nivelDificuldade - Nível da IA (1 a 20)
  * @param {string} [motivo] - Ex: 'XEQUE_MATE', 'TEMPO', 'AFOGAMENTO', 'DESISTENCIA'
  */
 export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
@@ -25,8 +25,8 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
                 descricao = 'Esperto! Você cozinhou o peixe até a vitória!😉'
             }
             else if (nivelDificuldade <= 3) {
-                descricao = 'Bela vitória! Você sabe jogar xadrez! Parabéns!🙌';
-            } else if (nivelDificuldade <= 8) {
+                descricao = 'Bela vitória! Você sabe jogar xadrez! Parabéns!👏🏻';
+            } else if (nivelDificuldade <= 10) {
                 descricao = `Excelente partida! Mostra uma ótima leitura tática.👏🏻`;
             } else {
                 descricao = `Impressionante! Uma vitória digna de mestre!🤯`;
@@ -34,7 +34,7 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
             break;
 
         case 'derrota':
-            titulo = '💀 Você Perdeu';
+            titulo = '👎 Você Perdeu';
 
             if (motivo === 'DESISTENCIA') {
                 descricao = 'Já vai? Derrota do jogador por abandono da partida.🏳️';
@@ -45,7 +45,7 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
             else if (nivelDificuldade <= 3) {
                 descricao = 'Não desanime! O xadrez exige prática, tente de novo.😉';
             }
-            else if (nivelDificuldade <= 8) {
+            else if (nivelDificuldade <= 10) {
                 descricao = 'Difícil? Talvez seja melhor ir para o nível capivara.🦫';
             }
             else {
