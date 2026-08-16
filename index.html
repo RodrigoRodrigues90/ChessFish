@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChessFish</title>
     <link rel="stylesheet" href="css/estilo.css">
+    <link rel="stylesheet" href="css/loading.css">
+    <script type="module" src="javaScript/loading.js" defer></script>
     <script type="module" src="javaScript/main.js" defer></script>
     <script type="module" src="javaScript/tabuleiro.js" defer></script>
     <link rel="icon" type="image/svg+xml" href="img/stockfish.png" />
@@ -88,7 +90,8 @@
         <div class="audio-credits">
             <span class="audio-title">Som Ambiente:</span>
             <div class="audio-info">
-                <a href="https://www.youtube.com/watch?v=4Tr0otuiQuU&list=RD4Tr0otuiQuU&start_radio=1" target="_blank" rel="noopener noreferrer" class="audio-link">
+                <a href="https://www.youtube.com/watch?v=4Tr0otuiQuU&list=RD4Tr0otuiQuU&start_radio=1" target="_blank"
+                    rel="noopener noreferrer" class="audio-link">
                     Moonlight Sonata - Ludwig van Beethoven
                 </a>
             </div>
@@ -107,6 +110,20 @@
 </div>
 
 <body>
+    <!-- TELA DE LOADING-->
+    <div id="splash-screen" class="splash-overlay">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <img class="img-fish" src="./img/stockfish.png">
+                <span class="logo-text">ChessFish</span>
+            </div>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+            <p class="splash-subtext">Carregando engine & tabuleiro...</p>
+        </div>
+    </div>
+
     <!-- Cabeçalho Principal -->
     <header class="cabecalho-principal">
         <!-- Botão "Sobre o Projeto" -->

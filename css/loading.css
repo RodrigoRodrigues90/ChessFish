@@ -1,0 +1,82 @@
+/* Overlay da Tela de Splash */
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+/* Esconde a tela com animação */
+.splash-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Card central do Splash */
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: pulseLogo 2s infinite ease-in-out;
+}
+
+/* Logo & Peça */
+.splash-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fish-icon {
+  font-size: 42px;
+}
+
+.logo-text {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+/* Barra de Carregamento Animada */
+.splash-loader {
+  width: 180px;
+  height: 4px;
+  background-color: #262626;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.loader-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  animation: loadingAnimation 2.6s infinite ease-in-out;
+  transform-origin: left;
+}
+
+.splash-subtext {
+  font-size: 12px;
+  color: #737373;
+  font-family: monospace;
+  margin: 0;
+}
+
+/* Keyframes de Animação */
+@keyframes loadingAnimation {
+  0% { transform: scaleX(0); }
+  50% { transform: scaleX(0.7); }
+  100% { transform: scaleX(1); }
+}
+
+@keyframes pulseLogo {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
