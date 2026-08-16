@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Vs StockFish</title>
+    <title>ChessFish</title>
     <link rel="stylesheet" href="css/estilo.css">
     <script type="module" src="javaScript/main.js" defer></script>
     <script type="module" src="javaScript/tabuleiro.js" defer></script>
@@ -58,10 +58,62 @@
     </div>
 </div>
 
+<!-- Modal Sobre o Projeto -->
+<div id="modal-about" class="modal-overlay hidden" aria-hidden="true">
+    <div class="modal-card">
+
+        <!-- Botão Fechar -->
+        <button id="btn-close-about" class="modal-close-btn" aria-label="Fechar">✕</button>
+
+        <!-- Cabeçalho -->
+        <div class="modal-header">
+            <h2>ChessFish</h2>
+            <p class="modal-subtitle">Aplicação interativa de xadrez e análise de aberturas</p>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="modal-body">
+            <p>
+                O <strong>ChessFish</strong> é uma aplicação web desenvolvida para partidas interativas contra a engine
+                <strong>Stockfish</strong>. O jogo conta com 3 níveis de dificuldade ajustados por profundidade de
+                cálculo (<em>depth</em>), permitindo simular desde o comportamento de jogadores iniciantes e
+                intermediários até a precisão de um Grande Mestre.
+            </p>
+            <p>
+                A aplicação realiza a leitura dinâmica de posições via notação FEN, identificando aberturas, variantes e
+                vantagens posicionais, além de acompanhar o saldo material em tempo real a cada lance.
+            </p>
+        </div>
+
+        <div class="audio-credits">
+            <span class="audio-title">Som Ambiente:</span>
+            <div class="audio-info">
+                <a href="https://www.youtube.com/watch?v=4Tr0otuiQuU&list=RD4Tr0otuiQuU&start_radio=1" target="_blank" rel="noopener noreferrer" class="audio-link">
+                    Moonlight Sonata - Ludwig van Beethoven
+                </a>
+            </div>
+        </div>
+
+        <!-- Rodapé / Créditos -->
+        <div class="modal-footer">
+            <span>Desenvolvido por <strong>Rodrigo Rodrigues</strong></span>
+            <a href="https://rodrigorodrigues90.github.io/Portfolio/" target="_blank" rel="noopener noreferrer"
+                class="github-link">
+                Sobre mim ↗
+            </a>
+        </div>
+
+    </div>
+</div>
+
 <body>
     <!-- Cabeçalho Principal -->
     <header class="cabecalho-principal">
-        <h1 class="titulo-site">ChessVsStockfish<span id="nivel-titulo"></span></h1>
+        <!-- Botão "Sobre o Projeto" -->
+        <button id="btn-about" class="about-btn">
+            <span class="about-icon">ℹ</span>
+        </button>
+        <h1 class="titulo-site">ChessFish<span id="nivel-titulo"></span></h1>
         <button id="btn-mutar-audio" class="btn-audio" title="Alternar Som">
             <span id="icone-audio">🔊</span>
         </button>
@@ -74,11 +126,23 @@
     </div>
 
     <div id="game-container" class="game-container">
-        <div class="painel-pecas" id="pecas-capturadas-ia"></div>
-        <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
+        <div class="wrapper-painel">
+            <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
+            <div class="wrapper-saldo">
+                <div class="saldo" id="saldo-ia"></div>
+                <div class="painel-pecas" id="pecas-capturadas-ia"></div>
+            </div>
+        </div>
+
         <div id="tabuleiro" class="tabuleiro"></div>
-        <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
-        <div class="painel-pecas" id="pecas-capturadas-jogador"></div>
+
+        <div class="wrapper-painel">
+            <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
+            <div class="wrapper-saldo">
+                <div class="saldo" id="saldo-jogador"></div>
+                <div class="painel-pecas" id="pecas-capturadas-jogador"></div>
+            </div>
+        </div>
     </div>
 
     <div class="game-controls">
@@ -91,14 +155,14 @@
             Desfazer Jogada
         </button>
         <button id="btn-desistir" class="btn-action">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-            <line x1="4" y1="22" x2="4" y2="15"></line>
-        </svg>
-        Desistir
-    </button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                <line x1="4" y1="22" x2="4" y2="15"></line>
+            </svg>
+            Desistir
+        </button>
     </div>
-
 
     <!-- Rodapé do Projeto -->
     <footer class="rodape-creditos">

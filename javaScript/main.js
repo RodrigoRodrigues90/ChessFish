@@ -2,7 +2,8 @@ import { Tabuleiro } from './tabuleiro.js';
 import { Clock } from './clock.js';
 import { desenharCoordenadas, gerarFEN, algebraicoParaCoord, converterParaUCI } from './notations.js';
 import { obterJogadaStockfish } from './api.js';
-import { exibirModalFimDeJogo, fecharModalFimDeJogo } from './fimdejogo.js';
+import { exibirModalFimDeJogo } from './fimdejogo.js';
+import { calcularSaldoPorCapturas } from './saldo.js';
 
 let sessionId = null;//desativado temporariamente 
 const elComentario = document.getElementById('texto-comentario');
@@ -19,6 +20,8 @@ let estadoAnterior = null;
 let podeDesfazer = false;
 let oportunidade = 3;
 let historicoLista = [];
+let saldoIA = 0
+let saldoJogador = 0
 
 // Arrays para guardar o histórico das peças capturadas
 const capturadasPeloJogador = [];
@@ -35,6 +38,8 @@ const btnPretas = document.getElementById('btn-jogar-pretas');
 const btnsDificuldade = document.querySelectorAll('.btn-dificuldade');
 const painelPecasJogador = document.getElementById('pecas-capturadas-jogador');
 const painelPecasIA = document.getElementById('pecas-capturadas-ia');
+const Elemento_SaldoIA = document.getElementById('saldo-ia');
+const Elemento_SaldoJogador = document.getElementById('saldo-jogador');
 const btnDesfazer = document.getElementById('btn-desfazer');
 const btnDesistir = document.getElementById('btn-desistir');
 
@@ -301,6 +306,9 @@ function registrarCaptura(pecaCapturada, turnoAtual) {
         // Caso contrário, quem capturou foi a IA
         capturadasPelaIA.push(pecaCapturada);
     }
+    let resposta = calcularSaldoPorCapturas(capturadasPelaIA, capturadasPeloJogador);// Atualiza o saldo material
+    saldoIA = resposta.vantagemIA;
+    saldoJogador = resposta.vantagemJogador;
 
     renderizarPecasCapturadas();
 }
@@ -320,7 +328,14 @@ function renderizarPecasCapturadas() {
             .map(p => `<span class="peca-capturada">${UNICODE_PECAS[p]}</span>`)
             .join('');
     }
+
+    if (Elemento_SaldoIA && Elemento_SaldoJogador) {
+        Elemento_SaldoIA.textContent = saldoIA > 0 ? `+${saldoIA}` : '';
+        Elemento_SaldoJogador.textContent = saldoJogador > 0 ? `+${saldoJogador}` : '';
+    }// Atualiza o saldo material
 }
+
+//simula visualmente o processamento da IA
 let simular_pensamento_IA = null;
 function simularPensamentoIAComentario() {
     let pontos = 0;
@@ -612,6 +627,10 @@ function desfazerJogada() {
     capturadasPelaIA.length = 0;
     capturadasPelaIA.push(...estadoAnterior.capturadasPelaIA);
 
+    let resposta = calcularSaldoPorCapturas(capturadasPelaIA, capturadasPeloJogador);// Atualiza o saldo material
+    saldoIA = resposta.vantagemIA;
+    saldoJogador = resposta.vantagemJogador;
+
     // 3. Aplica as regras de trava do botão (só pode desfazer 1x)
     oportunidade--;
     podeDesfazer = false;
@@ -636,7 +655,8 @@ function desfazerJogada() {
 // Auxiliar visual do botão no HTML
 function atualizarBotaoDesfazer() {
     if (btnDesfazer) {
-        const estaPermitido = podeDesfazer && nivelDificuldade < 9 && oportunidade > 0;
+        const estaPermitido = podeDesfazer && oportunidade > 0;
+        limparSelecao(); // Limpa seleção ao atualizar o botão
         btnDesfazer.disabled = !estaPermitido;
 
     }
@@ -660,7 +680,7 @@ function desistirPartida() {
     podeDesfazer = false;
     atualizarBotaoDesfazer();
 
-    finalizarPartida('derrota', 'DESISTENCIA');
+    finalizarPartida('derrota', 'DESISTÊNCIA');
 }
 
 /**
@@ -685,9 +705,9 @@ function finalizarPartida(resultado, motivo) {
     })
     // comentario do stockfish
     if (resultado === 'vitoria') {
-        elComentario.textContent = "Fim de jogo. @#$*&"
+        elComentario.textContent = "Fim de jogo por " + motivo.toLowerCase() + "🤝🤯"
     } else {
-        elComentario.textContent = "Fim de jogo. kkkkk"
+        elComentario.textContent = "Fim de jogo por " + motivo.toLowerCase() + "🤝"
     }
 
     // Exibe o modal dinâmico
@@ -695,3 +715,38 @@ function finalizarPartida(resultado, motivo) {
 }
 
 
+document.addEventListener('DOMContentLoaded', () => {
+  const btnAbout = document.getElementById('btn-about');
+  const modalAbout = document.getElementById('modal-about');
+  const btnCloseAbout = document.getElementById('btn-close-about');
+
+  // Abre o modal
+  function openModal() {
+    modalAbout.classList.remove('hidden');
+    modalAbout.setAttribute('aria-hidden', 'false');
+  }
+
+  // Fecha o modal
+  function closeModal() {
+    modalAbout.classList.add('hidden');
+    modalAbout.setAttribute('aria-hidden', 'true');
+  }
+
+  // Event Listeners
+  btnAbout.addEventListener('click', openModal);
+  btnCloseAbout.addEventListener('click', closeModal);
+
+  // Fecha ao clicar na área escura fora do card
+  modalAbout.addEventListener('click', (event) => {
+    if (event.target === modalAbout) {
+      closeModal();
+    }
+  });
+
+  // Fecha ao pressionar a tecla 'ESC'
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !modalAbout.classList.contains('hidden')) {
+      closeModal();
+    }
+  });
+});

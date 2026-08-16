@@ -36,7 +36,7 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
         case 'derrota':
             titulo = '👎 Você Perdeu';
 
-            if (motivo === 'DESISTENCIA') {
+            if (motivo === 'DESISTÊNCIA') {
                 descricao = 'Já vai? Derrota do jogador por abandono da partida.🏳️';
             }
             else if (motivo === 'TEMPO') {
