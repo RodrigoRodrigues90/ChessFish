@@ -324,7 +324,7 @@ function renderizarPecasCapturadas() {
 let simular_pensamento_IA = null;
 function simularPensamentoIAComentario() {
     let pontos = 0;
-    
+
     // limpar intervalo rodando em paralelo
     pararPensamentoIAComentario();
 
@@ -341,11 +341,11 @@ function pararPensamentoIAComentario() {
     }
 }
 
-function registrarHistorico(lanceUCI){
-   historicoLista.push(lanceUCI);
+function registrarHistorico(lanceUCI) {
+    historicoLista.push(lanceUCI);
 }
-function limparHistorico(){
-   historicoLista = [];
+function limparHistorico() {
+    historicoLista = [];
 }
 
 //--------------- Controle de Seleção e Jogadas ---------------//
@@ -367,7 +367,7 @@ function tratarCliqueCasa(linha, coluna) {
         salvarEstadoJogo(); // Salva o estado atual antes de mover para permitir desfazer
         podeDesfazer = false; // Permite desfazer após salvar o estado
         //===================================//
-        
+
         // [HISTÓRICO UCI] Converter coordenadas de origem e destino
         const origemUCI = converterParaUCI(casaSelecionada.linha, casaSelecionada.coluna);
         const destinoUCI = converterParaUCI(linha, coluna);
@@ -552,9 +552,23 @@ async function executarTurnoIA() {
         // Libera o estado de processamento para permitir que o usuário continue jogando
         processandoIA = false;
 
-        //6.exibe comentário da IA sobre a jogada feita
-        elComentario.textContent = `Joguei ${uci}. ${resposta.abertura ? resposta.abertura.name + resposta.abertura.summary : ""}`;
-        console.log(resposta.abertura)
+        //6.exibe comentário da IA sobre a jogada feita// No Frontend:
+
+        //6.1 Informações sobre a abertura, se disponíveis
+        const aberturaInfo = resposta.abertura
+            ? `Posição de  ${resposta.abertura.name}\n${resposta.abertura.summary}`
+            : "";
+        //6.2 Avaliação do meio-jogo fornecida pelo Stockfish
+        const avaliacaoMeioJogo = resposta.meioJogo?.avaliacao
+            ? `${resposta.meioJogo.avaliacao.desc}`
+            : "";
+
+        // Agrupa apenas as mensagens existentes evitando linhas em branco extras
+        const comentarios = [aberturaInfo, avaliacaoMeioJogo]
+            .filter(Boolean)
+            .join("\n\n");
+
+        elComentario.textContent = `Joguei ${uci}.${comentarios ? "\n\n" + comentarios : ""}`;
         pararPensamentoIAComentario();
     }
     processandoIA = false;
@@ -658,7 +672,6 @@ function finalizarPartida(resultado, motivo) {
     if (relogio && typeof relogio.parar === 'function') {
         relogio.parar();
     }
-    console.log(resultado);
 
     podeDesfazer = false;
     atualizarBotaoDesfazer();
@@ -673,7 +686,7 @@ function finalizarPartida(resultado, motivo) {
     // comentario do stockfish
     if (resultado === 'vitoria') {
         elComentario.textContent = "Fim de jogo. @#$*&"
-    }else{
+    } else {
         elComentario.textContent = "Fim de jogo. kkkkk"
     }
 
