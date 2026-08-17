@@ -7,6 +7,9 @@
     <title>ChessFish</title>
     <link rel="stylesheet" href="css/estilo.css">
     <link rel="stylesheet" href="css/loading.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@700;800&display=swap" rel="stylesheet">
     <script type="module" src="javaScript/loading.js" defer></script>
     <script type="module" src="javaScript/main.js" defer></script>
     <script type="module" src="javaScript/tabuleiro.js" defer></script>
@@ -115,7 +118,12 @@
         <div class="splash-content">
             <div class="splash-logo">
                 <img class="img-fish" src="./img/stockfish.png">
-                <span class="logo-text">ChessFish</span>
+
+                <div class="logo-wrapper-3d">
+                    <span class="logo-text-3d">
+                        <span class="text-chess">Chess</span><span class="text-fish">Fish</span>
+                    </span>
+                </div>
             </div>
             <div class="splash-loader">
                 <div class="loader-bar"></div>
@@ -130,7 +138,13 @@
         <button id="btn-about" class="about-btn">
             <span class="about-icon">ℹ</span>
         </button>
-        <h1 class="titulo-site">ChessFish<span id="nivel-titulo"></span></h1>
+        <h1 class="logo-text">
+            <div class="logo-wrapper-3d">
+                <span class="logo-text-3d">
+                    <span class="text-chess">Chess</span><span class="text-fish">Fish</span>
+                </span>
+            </div> <span id="nivel-titulo"></span>
+        </h1>
         <button id="btn-mutar-audio" class="btn-audio" title="Alternar Som">
             <span id="icone-audio">🔊</span>
         </button>

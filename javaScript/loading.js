@@ -9,6 +9,6 @@ window.addEventListener('load', () => {
       setTimeout(() => {
         splashScreen.remove();
       }, 1000);
-    }, 2500);
+    }, 3000);
   }
 });

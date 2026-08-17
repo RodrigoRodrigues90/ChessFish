@@ -26,15 +26,6 @@ body {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
-.titulo-site {
-    font-size: 22px;
-    font-weight: bold;
-    color: #f0d9b5;
-    /* Cor das casas claras */
-    margin: 0;
-    letter-spacing: 1px;
-}
-
 #nivel-titulo {
     font-size: medium;
     font-weight: lighter;
@@ -74,7 +65,7 @@ body {
 
 #texto-comentario {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.75rem;
     color: #e0e0e0;
     font-style: italic;
 }
@@ -535,10 +526,10 @@ body {
     color: #e5e5e5;
     border: 1px solid #404040;
     border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    font-size: 14px;
-    font-weight: 500;
+    width: 27px;
+    height: 25px;
+    font-size: 21px;
+    font-weight: 700;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -622,7 +613,7 @@ body {
 .modal-body p {
     margin-bottom: 12px;
 }
-/* Créditos de Áudio */
+
 .audio-credits {
   margin-top: 16px;
   padding: 10px 12px;
