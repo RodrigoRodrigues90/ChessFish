@@ -569,21 +569,23 @@ async function executarTurnoIA() {
 
         //6.exibe comentário da IA sobre a jogada feita// No Frontend:
 
-        //6.1 Informações sobre a abertura, se disponíveis
+        // 6.1 Informações sobre a abertura
         const aberturaInfo = resposta.abertura
-            ? `Posição de  ${resposta.abertura.name}\n${resposta.abertura.summary}`
+            ? `Posição de ${resposta.abertura.name}<br>${resposta.abertura.summary}`
             : "";
-        //6.2 Avaliação do meio-jogo fornecida pelo Stockfish
+
+        // 6.2 Avaliação do meio-jogo fornecida pelo Stockfish
         const avaliacaoMeioJogo = resposta.meioJogo?.avaliacao
             ? `${resposta.meioJogo.avaliacao.desc}`
             : "";
 
-        // Agrupa apenas as mensagens existentes evitando linhas em branco extras
+        // Agrupa apenas as mensagens existentes
         const comentarios = [aberturaInfo, avaliacaoMeioJogo]
             .filter(Boolean)
-            .join("\n\n");
+            .join("<br><br>");
 
-        elComentario.textContent = `Joguei ${uci}.${comentarios ? "\n\n" + comentarios : ""}`;
+        // Renderiza o HTML interpretando as tags <strong> e os <br>
+        elComentario.innerHTML = `Joguei ${uci}.${comentarios ? "<br><br>" + comentarios : ""}`;
         pararPensamentoIAComentario();
     }
     processandoIA = false;
@@ -716,37 +718,37 @@ function finalizarPartida(resultado, motivo) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  const btnAbout = document.getElementById('btn-about');
-  const modalAbout = document.getElementById('modal-about');
-  const btnCloseAbout = document.getElementById('btn-close-about');
+    const btnAbout = document.getElementById('btn-about');
+    const modalAbout = document.getElementById('modal-about');
+    const btnCloseAbout = document.getElementById('btn-close-about');
 
-  // Abre o modal
-  function openModal() {
-    modalAbout.classList.remove('hidden');
-    modalAbout.setAttribute('aria-hidden', 'false');
-  }
-
-  // Fecha o modal
-  function closeModal() {
-    modalAbout.classList.add('hidden');
-    modalAbout.setAttribute('aria-hidden', 'true');
-  }
-
-  // Event Listeners
-  btnAbout.addEventListener('click', openModal);
-  btnCloseAbout.addEventListener('click', closeModal);
-
-  // Fecha ao clicar na área escura fora do card
-  modalAbout.addEventListener('click', (event) => {
-    if (event.target === modalAbout) {
-      closeModal();
+    // Abre o modal
+    function openModal() {
+        modalAbout.classList.remove('hidden');
+        modalAbout.setAttribute('aria-hidden', 'false');
     }
-  });
 
-  // Fecha ao pressionar a tecla 'ESC'
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !modalAbout.classList.contains('hidden')) {
-      closeModal();
+    // Fecha o modal
+    function closeModal() {
+        modalAbout.classList.add('hidden');
+        modalAbout.setAttribute('aria-hidden', 'true');
     }
-  });
+
+    // Event Listeners
+    btnAbout.addEventListener('click', openModal);
+    btnCloseAbout.addEventListener('click', closeModal);
+
+    // Fecha ao clicar na área escura fora do card
+    modalAbout.addEventListener('click', (event) => {
+        if (event.target === modalAbout) {
+            closeModal();
+        }
+    });
+
+    // Fecha ao pressionar a tecla 'ESC'
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modalAbout.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
 });

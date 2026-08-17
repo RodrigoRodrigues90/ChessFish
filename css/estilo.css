@@ -38,6 +38,10 @@ body {
     object-fit: contain;
     animation: pulp 2s infinite alternate-reverse;
 }
+.texto-destaque {
+  color: #facc15; /* Amarelo tom suave/ouro */
+  font-weight: 700;
+}
 
 @keyframes pulp {
     0% {
