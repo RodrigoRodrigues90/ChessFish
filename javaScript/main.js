@@ -8,9 +8,10 @@ import { calcularSaldoPorCapturas } from './saldo.js';
 let sessionId = null;//desativado temporariamente 
 const elComentario = document.getElementById('texto-comentario');
 const DOM_TABULEIRO = document.getElementById('tabuleiro');
-const DOM_TIMER_W = document.getElementById('timer-w');
-const DOM_TIMER_B = document.getElementById('timer-b');
+const DOM_TIMER_IA = document.getElementById('timer-ia');
+const DOM_TIMER_JOGADOR = document.getElementById('timer-jogador');
 const jogo = new Tabuleiro();
+
 //--------------- VARIÁVEIS DE ESTADO ----------------//
 let corJogador = 'w'; // 'w' para Brancas (padrão) ou 'b' para Pretas
 let corIA = 'b';      // Inverso de corJogador
@@ -19,13 +20,13 @@ let processandoIA = false;
 let estadoAnterior = null;
 let podeDesfazer = false;
 let oportunidade = 3;
-let historicoLista = [];
 let saldoIA = 0
 let saldoJogador = 0
 
 // Arrays para guardar o histórico das peças capturadas
 const capturadasPeloJogador = [];
 const capturadasPelaIA = [];
+const historicoLista = [];
 
 //--------------- ELEMENTOS DE INTERFACE ----------------//
 const nivelTitulo = document.getElementById('nivel-titulo')
@@ -89,8 +90,6 @@ function iniciarJogo() {
     sessionId = `partida_${Date.now()}`;
 
     tentarIniciarMusica(); // Tenta ligar a música no primeiro clique
-    // Ajusta a visão do tabuleiro com base na cor escolhida no Passo 1
-    painelJogo.classList.toggle('visao-pretas', corJogador === 'b');
 
     // Inicia a renderização e o relógio
     renderizarTabuleiro();
@@ -166,52 +165,73 @@ btnMutarAudio.addEventListener('click', () => {
 let alertaTocadoW = false;
 let alertaTocadoB = false;
 
+// Assumindo que 'corJogador' vale 'w' ou 'b'
 const relogio = new Clock(
     5,
     (dados) => {
-        DOM_TIMER_W.textContent = dados.w;
-        DOM_TIMER_B.textContent = dados.b;
+        // 1. O relógio sempre envia 'w' (Brancas) e 'b' (Pretas)
+        // Mapeamos o display conforme a cor atribuída ao jogador
+        const eJogadorBrancas = corJogador === 'w';
 
-        const elBranca = document.querySelector('.timer-conteiner.branca');
-        const elPreta = document.querySelector('.timer-conteiner.preto');
+        const tempoJogador = eJogadorBrancas ? dados.w : dados.b;
+        const tempoIA = eJogadorBrancas ? dados.b : dados.w;
 
-        if (elBranca && elPreta) {
-            // Conversão garantida para número
+        DOM_TIMER_JOGADOR.textContent = tempoJogador;
+        DOM_TIMER_IA.textContent = tempoIA;
+
+        const elJogador = document.querySelector('.timer-conteiner.jogador');
+        const elIA = document.querySelector('.timer-conteiner.ia');
+
+        if (elJogador && elIA) {
             const segW = Number(dados.wSegundos);
             const segB = Number(dados.bSegundos);
 
             const emPerigoW = segW <= 30;
             const emPerigoB = segB <= 30;
 
-            // 1. Marca/Desmarca a classe 'ativo' conforme o turno
-            elBranca.classList.toggle('ativo', dados.turnoAtivo === 'w');
-            elPreta.classList.toggle('ativo', dados.turnoAtivo === 'b');
+            // 2. Associa cada elemento à sua respectiva cor da partida
+            const elBrancas = eJogadorBrancas ? elJogador : elIA;
+            const elPretas = eJogadorBrancas ? elIA : elJogador;
 
-            // 2. Aplica/Remove a classe 'perigo'
-            elBranca.classList.toggle('perigo', emPerigoW);
-            elPreta.classList.toggle('perigo', emPerigoB);
+            // 3. Ativa o relógio de quem é a vez ('w' sempre começa ativo no Clock)
+            elBrancas.classList.toggle('ativo', dados.turnoAtivo === 'w');
+            elPretas.classList.toggle('ativo', dados.turnoAtivo === 'b');
 
-            // 3. Toca o alerta sonoro apenas na entrada dos 30s
-            if (emPerigoW && !alertaTocadoW) {
-                tocarSom(audioAlerta);
-                alertaTocadoW = true;
+            // 4. Aplica a classe de perigo nos elementos corretos
+            elBrancas.classList.toggle('perigo', emPerigoW);
+            elPretas.classList.toggle('perigo', emPerigoB);
+
+            // 5. Controle do Alerta Sonoro
+            if (emPerigoW) {
+                if (!alertaTocadoW) {
+                    tocarSom(audioAlerta);
+                    alertaTocadoW = true;
+                }
+            } else {
+                alertaTocadoW = false;
             }
 
-            if (emPerigoB && !alertaTocadoB) {
-                tocarSom(audioAlerta);
-                alertaTocadoB = true;
+            if (emPerigoB) {
+                if (!alertaTocadoB) {
+                    tocarSom(audioAlerta);
+                    alertaTocadoB = true;
+                }
+            } else {
+                alertaTocadoB = false;
             }
         }
     },
     (quemPerdeu) => {
         jogo.jogoFinalizado = true;
         tocarSom(audioXequeMate);
+
+        // Se quem perdeu por tempo tiver cor diferente da do jogador, o jogador venceu
         const jogadorVenceu = quemPerdeu !== corJogador;
+
         if (jogadorVenceu) {
-            finalizarPartida('vitoria', 'TEMPO')
-        }
-        else {
-            finalizarPartida('derrota', 'TEMPO')
+            finalizarPartida('vitoria', 'TEMPO');
+        } else {
+            finalizarPartida('derrota', 'TEMPO');
         }
     }
 );
@@ -388,6 +408,7 @@ function tratarCliqueCasa(linha, coluna) {
         const destinoUCI = converterParaUCI(linha, coluna);
         const lanceUCI = `${origemUCI}${destinoUCI}`;
         registrarHistorico(lanceUCI); // Adiciona ao histórico de jogadas
+        console.log(historicoLista)
 
         //para checagem de movimento de enpassant 
         const pecaOrigem = jogo.obterPeca(casaSelecionada.linha, casaSelecionada.coluna);
@@ -501,7 +522,7 @@ async function executarTurnoIA() {
     if (resposta && resposta.movimento) {
         const uci = resposta.movimento; // Ex: "e2e4" ou "e7e8q"
         registrarHistorico(uci); // Adiciona ao histórico de jogadas
-
+        console.log(historicoLista);
         // Extrai as casas de origem e destino da string UCI
         const origemStr = uci.substring(0, 2); // Ex: "e2"
         const destinoStr = uci.substring(2, 4); // Ex: "e4"
@@ -585,7 +606,7 @@ async function executarTurnoIA() {
             .join("<br><br>");
 
         // Renderiza o HTML interpretando as tags <strong> e os <br>
-        elComentario.innerHTML = `Joguei ${uci}.${comentarios ? "<br><br>" + comentarios : ""}`;
+        elComentario.innerHTML = `Joguei ${uci}.${comentarios ? "<br>" + comentarios : ""}`;
         pararPensamentoIAComentario();
     }
     processandoIA = false;
@@ -625,6 +646,7 @@ function desfazerJogada() {
     // 2. Restaura os arrays de capturas copiando os valores salvos de volta
     capturadasPeloJogador.length = 0;
     capturadasPeloJogador.push(...estadoAnterior.capturadasPeloJogador);
+    historicoLista.splice(-2); // Remove um lance inteiro do histórico de jogadas
 
     capturadasPelaIA.length = 0;
     capturadasPelaIA.push(...estadoAnterior.capturadasPelaIA);

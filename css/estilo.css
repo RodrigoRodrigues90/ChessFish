@@ -17,13 +17,27 @@ body {
 /* Cabeçalho Principal */
 .cabecalho-principal {
     width: 100%;
+    box-shadow: 0 0 15px 1px black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.wrapper-cabecalho{
     max-width: 600px;
+    width: 600px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 0;
     box-sizing: border-box;
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+
+}
+.wrapper-buttons-header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
 }
 
 #nivel-titulo {
@@ -159,7 +173,6 @@ body {
     padding: 10px 15px;
     border-radius: 4px;
     font-family: 'Courier New', Courier, monospace;
-    /* Fonte mono espaçada evita que o texto dance */
     font-size: 1.2rem;
     font-weight: bold;
     transition: all 0.3s ease;
@@ -310,7 +323,7 @@ body {
     }
 
     .cabecalho-principal {
-        padding: 15px 20px;
+        padding: 15px 15px;
     }
 }
 

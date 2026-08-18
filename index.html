@@ -134,20 +134,23 @@
 
     <!-- Cabeçalho Principal -->
     <header class="cabecalho-principal">
-        <!-- Botão "Sobre o Projeto" -->
-        <button id="btn-about" class="about-btn">
-            <span class="about-icon">ℹ</span>
-        </button>
-        <h1 class="logo-text">
-            <div class="logo-wrapper-3d">
-                <span class="logo-text-3d">
-                    <span class="text-chess">Chess</span><span class="text-fish">Fish</span>
-                </span>
-            </div> <span id="nivel-titulo"></span>
-        </h1>
-        <button id="btn-mutar-audio" class="btn-audio" title="Alternar Som">
-            <span id="icone-audio">🔊</span>
-        </button>
+        <div class="wrapper-cabecalho">
+            <h1 class="logo-text">
+                <div class="logo-wrapper-3d">
+                    <span class="logo-text-3d">
+                        <span class="text-chess">Chess</span><span class="text-fish">Fish</span>
+                    </span>
+                </div> <span id="nivel-titulo"></span>
+            </h1>
+            <div class="wrapper-buttons-header">
+                <button id="btn-about" class="about-btn">
+                    <span class="about-icon">ℹ</span>
+                </button>
+                <button id="btn-mutar-audio" class="btn-audio" title="Alternar Som">
+                    <span id="icone-audio">🔊</span>
+                </button>
+            </div>
+        </div>
     </header>
 
     <!-- campo de comentarios da IA -->
@@ -158,7 +161,7 @@
 
     <div id="game-container" class="game-container">
         <div class="wrapper-painel">
-            <div class="timer-conteiner preto"><span id="timer-b">05:00</span></div>
+            <div class="timer-conteiner ia"><span id="timer-ia">05:00</span></div>
             <div class="wrapper-saldo">
                 <div class="saldo" id="saldo-ia"></div>
                 <div class="painel-pecas" id="pecas-capturadas-ia"></div>
@@ -168,7 +171,7 @@
         <div id="tabuleiro" class="tabuleiro"></div>
 
         <div class="wrapper-painel">
-            <div class="timer-conteiner branca"><span id="timer-w">05:00</span></div>
+            <div class="timer-conteiner jogador"><span id="timer-jogador">05:00</span></div>
             <div class="wrapper-saldo">
                 <div class="saldo" id="saldo-jogador"></div>
                 <div class="painel-pecas" id="pecas-capturadas-jogador"></div>
