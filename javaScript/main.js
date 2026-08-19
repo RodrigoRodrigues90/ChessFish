@@ -408,7 +408,6 @@ function tratarCliqueCasa(linha, coluna) {
         const destinoUCI = converterParaUCI(linha, coluna);
         const lanceUCI = `${origemUCI}${destinoUCI}`;
         registrarHistorico(lanceUCI); // Adiciona ao histórico de jogadas
-        console.log(historicoLista)
 
         //para checagem de movimento de enpassant 
         const pecaOrigem = jogo.obterPeca(casaSelecionada.linha, casaSelecionada.coluna);
@@ -596,9 +595,9 @@ async function executarTurnoIA() {
             : "";
 
         // 6.2 Avaliação do meio-jogo fornecida pelo Stockfish
-        const avaliacaoMeioJogo = resposta.meioJogo?.avaliacao
-            ? `${resposta.meioJogo.avaliacao.desc}`
-            : "";
+            const avaliacaoMeioJogo = resposta.meioJogo?.avaliacao
+                ? `${resposta.meioJogo.avaliacao.desc}`
+                : "";
 
         // Agrupa apenas as mensagens existentes
         const comentarios = [aberturaInfo, avaliacaoMeioJogo]

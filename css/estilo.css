@@ -70,6 +70,7 @@ body {
     align-items: center;
     gap: 12px;
     width: 90%;
+    height: 70px;
     max-width: 600px;
     background-color: #2b2b2b;
     border-left: 4px solid #f0d9b5;
@@ -323,7 +324,7 @@ body {
     }
 
     .cabecalho-principal {
-        padding: 15px 15px;
+        padding: 1px 12px;
     }
 }
 
@@ -415,12 +416,12 @@ body {
 }
 
 .btn-cor.branca {
-    background-color: #f0d9b5;
+    background-color: #d4d3d1;
     color: #2b2b2b;
 }
 
 .btn-cor.preta {
-    background-color: #b58863;
+    background-color: #497056;
     color: #ffffff;
 }
 
@@ -692,4 +693,95 @@ body {
 
 .github-link:hover {
     text-decoration: underline;
+}
+
+
+/* =========================================================
+   ESTILIZAÇÃO EXCLUSIVA DO MODAL DE DIFICULDADE (#modal-dificuldade)
+   ========================================================= */
+
+/* Card interno do Modal de Dificuldade */
+#modal-dificuldade .modal-conteudo {
+    background-color: #2b2b2b;
+    border-radius: 12px;
+    padding: 28px 24px;
+    max-width: 460px;
+    width: 90%;
+    color: #ffffff;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* Título */
+#modal-dificuldade h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #d4d3d1; /* Tom suave das Peças Brancas */
+    margin-bottom: 12px;
+}
+
+/* Descrição textual sobre o Stockfish */
+#modal-dificuldade .modal-conteudo > span:not(.elo) {
+    display: block;
+    font-size: 0.90rem;
+    line-height: 1.45;
+    color: #cccccc;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+/* Container das opções */
+#modal-dificuldade .opcoes-dificuldade {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Botões de opção de dificuldade */
+#modal-dificuldade .btn-dificuldade {
+    position: relative;
+    background-color: #232323;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    height: 90px;
+    flex-direction: column;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#modal-dificuldade .btn-dificuldade strong {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #d4d3d1;
+    margin-bottom: 4px;
+    transition: color 0.2s ease;
+}
+
+/* Descrição curta da dificuldade */
+#modal-dificuldade .btn-dificuldade span:not(.elo) {
+    font-size: 0.8rem;
+    color: #aaaaaa;
+    transition: color 0.2s ease;
+    text-align: left;
+}
+
+/* Nível de ELO */
+#modal-dificuldade .btn-dificuldade .elo {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #facc15; /* Amarelo de destaque */
+    margin-top: 6px;
+    transition: color 0.2s ease;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+/* Transição de cores dos textos internos no Hover */
+#modal-dificuldade .btn-dificuldade:hover strong,
+#modal-dificuldade .btn-dificuldade:hover span:not(.elo) {
+    color: #ffffff;
 }
