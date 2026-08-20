@@ -22,7 +22,8 @@ body {
     justify-content: center;
     align-items: center;
 }
-.wrapper-cabecalho{
+
+.wrapper-cabecalho {
     max-width: 600px;
     width: 600px;
     display: flex;
@@ -33,7 +34,8 @@ body {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 
 }
-.wrapper-buttons-header{
+
+.wrapper-buttons-header {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -51,10 +53,15 @@ body {
     height: 36px;
     object-fit: contain;
     animation: pulp 2s infinite alternate-reverse;
+    position: static;
+    left: 0;
+    top: 20px
 }
+
 .texto-destaque {
-  color: #facc15; /* Amarelo tom suave/ouro */
-  font-weight: 700;
+    color: #facc15;
+    /* Amarelo tom suave/ouro */
+    font-weight: 700;
 }
 
 @keyframes pulp {
@@ -68,23 +75,41 @@ body {
 .painel-comentario {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 18px;
     width: 90%;
     height: 70px;
     max-width: 600px;
     background-color: #2b2b2b;
-    border-left: 4px solid #f0d9b5;
+    border-left: 4px solid #4d8c42;
     border-radius: 6px;
-    padding: 12px 16px;
+    padding: 2px 15px;
     margin-top: 15px;
     margin-bottom: 20px;
     box-sizing: border-box;
     margin-bottom: 1em;
 }
 
+.wrapper-text-comentario {
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+    width: 100%;
+    overflow-y: hidden;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+}
+
+.wrapper-text-comentario::-webkit-scrollbar {
+    display: none;
+}
+
 #texto-comentario {
-    margin: 0;
-    font-size: 0.75rem;
+    display: block;
+    margin: auto 0;
+    font-size: 0.85rem;
     color: #e0e0e0;
     font-style: italic;
 }
@@ -633,42 +658,42 @@ body {
 }
 
 .audio-credits {
-  margin-top: 16px;
-  padding: 10px 12px;
-  background-color: #262626;
-  border: 1px solid #333333;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
+    margin-top: 16px;
+    padding: 10px 12px;
+    background-color: #262626;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
 }
 
 .audio-icon {
-  font-size: 16px;
+    font-size: 16px;
 }
 
 .audio-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .audio-title {
-  color: #a3a3a3;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+    color: #a3a3a3;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .audio-link {
-  color: #34d399;
-  text-decoration: none;
-  font-weight: 500;
+    color: #34d399;
+    text-decoration: none;
+    font-weight: 500;
 }
 
 .audio-link:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 /* Rodapé */
@@ -716,12 +741,13 @@ body {
 #modal-dificuldade h2 {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #d4d3d1; /* Tom suave das Peças Brancas */
+    color: #d4d3d1;
+    /* Tom suave das Peças Brancas */
     margin-bottom: 12px;
 }
 
 /* Descrição textual sobre o Stockfish */
-#modal-dificuldade .modal-conteudo > span:not(.elo) {
+#modal-dificuldade .modal-conteudo>span:not(.elo) {
     display: block;
     font-size: 0.90rem;
     line-height: 1.45;
@@ -772,7 +798,8 @@ body {
 #modal-dificuldade .btn-dificuldade .elo {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #facc15; /* Amarelo de destaque */
+    color: #facc15;
+    /* Amarelo de destaque */
     margin-top: 6px;
     transition: color 0.2s ease;
     position: absolute;

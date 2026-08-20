@@ -4,8 +4,8 @@ import { desenharCoordenadas, gerarFEN, algebraicoParaCoord, converterParaUCI } 
 import { obterJogadaStockfish } from './api.js';
 import { exibirModalFimDeJogo } from './fimdejogo.js';
 import { calcularSaldoPorCapturas } from './saldo.js';
+import { tipyng } from './tipyng.js';
 
-let sessionId = null;//desativado temporariamente 
 const elComentario = document.getElementById('texto-comentario');
 const DOM_TABULEIRO = document.getElementById('tabuleiro');
 const DOM_TIMER_IA = document.getElementById('timer-ia');
@@ -32,7 +32,6 @@ const historicoLista = [];
 const nivelTitulo = document.getElementById('nivel-titulo')
 const modalCor = document.getElementById('modal-selecao-cor');
 const modalDificuldade = document.getElementById('modal-dificuldade');
-const painelJogo = document.getElementById('game-container');
 
 const btnBrancas = document.getElementById('btn-jogar-brancas');
 const btnPretas = document.getElementById('btn-jogar-pretas');
@@ -86,8 +85,6 @@ function definirDificuldade(nivel) {
 }
 
 function iniciarJogo() {
-    // Cria um ID de sessão único para esta partida 
-    sessionId = `partida_${Date.now()}`;
 
     tentarIniciarMusica(); // Tenta ligar a música no primeiro clique
 
@@ -521,7 +518,6 @@ async function executarTurnoIA() {
     if (resposta && resposta.movimento) {
         const uci = resposta.movimento; // Ex: "e2e4" ou "e7e8q"
         registrarHistorico(uci); // Adiciona ao histórico de jogadas
-        console.log(historicoLista);
         // Extrai as casas de origem e destino da string UCI
         const origemStr = uci.substring(0, 2); // Ex: "e2"
         const destinoStr = uci.substring(2, 4); // Ex: "e4"
@@ -605,7 +601,7 @@ async function executarTurnoIA() {
             .join("<br><br>");
 
         // Renderiza o HTML interpretando as tags <strong> e os <br>
-        elComentario.innerHTML = `Joguei ${uci}.${comentarios ? "<br>" + comentarios : ""}`;
+        tipyng(`Joguei ${uci}.${comentarios ? "<br>" + comentarios : ""}`);
         pararPensamentoIAComentario();
     }
     processandoIA = false;
