@@ -409,16 +409,15 @@ body {
 .modal-conteudo {
     background-color: #1a1a1a;
     background-image:
-        linear-gradient(rgb(18, 18, 18), rgba(20, 20, 20, 0.918)),
+        linear-gradient(rgb(18, 18, 18) , rgba(20, 20, 20, 0.562)),
         url("../img/wp.jpg");
-    background-repeat: repeat;
-    background-size: 180px;
-    background-position: center;
+    background-size: cover;
+    background-position: 80% ;
     padding: 30px;
     border-radius: 12px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.274);
     color: #ffffff;
+    box-shadow: 0 0 8px 3px #10b9813d;
 }
 
 .modal-conteudo h2 {
@@ -711,6 +710,9 @@ body {
 }
 
 #modal-dificuldade .modal-conteudo {
+     background-image:
+        linear-gradient(rgb(18, 18, 18) , rgba(20, 20, 20, 0.856)),
+        url("../img/wp.jpg");
     border-radius: 12px;
     padding: 28px 24px;
     max-width: 460px;
@@ -793,4 +795,11 @@ body {
 #modal-dificuldade .btn-dificuldade:hover strong,
 #modal-dificuldade .btn-dificuldade:hover span:not(.elo) {
     color: #ffffff;
+}
+
+#modal-fim-de-jogo .modal-conteudo{
+    background-position: 80%;
+     background-image:
+        linear-gradient(rgb(18, 18, 18) , rgba(20, 20, 20, 0.829)),
+        url("../img/wp.jpg");
 }
