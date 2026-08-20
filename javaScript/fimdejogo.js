@@ -1,3 +1,43 @@
+
+const mensagensDerrota = {
+    iniciante: [
+        "Xeque-mate. O xadrez exige pratica."+"\n"+"Tente de novo.",
+        "Xeque-mate. A maquina vence a capivara."+"\n"+"Tente de novo.",
+        "Xeque-mate. A maquina vence com o mínimo de cálculo."+"\n"+"Tente de novo."
+    ],
+
+    medio: [
+        "Xeque-mate. Talvez valha a pena tentar de novo, no nível iniciante.",
+        "Xeque-mate. O peixe vence de novo!!!",
+        "Xeque-mate. O nível médio exige concentração."+"\n"+"Tente de novo.",
+    ],
+
+    avancado: [
+        "Xeque-mate. Nem Kasparov venceu o peixe nesse nível."+"\n"+"Tente de novo.",
+        "Xeque-mate. Nem Bobby Fisher venceria."+"\n"+"Tente de novo.",
+        "Xeque-mate. Magnus talvez chegaria perto, você nunca!"+"\n"+"Tente de novo."
+    ]
+};
+const mensagensVitoria = {
+    iniciante: [
+        "Xeque-mate! Você sabe jogar xadrez, parabéns! 👏🏻",
+        "Xeque-mate! Venceu o peixe no nível iniciante. 🐣",
+        "Xeque-mate! A capivara desta vez foi a máquina. ♟️",
+        "Xeque-mate! Grande vitória, hora de subir o nível?"
+    ],
+
+    medio: [
+        "Xeque-mate! Ótima leitura tática na partida. 👏🏻",
+        "Xeque-mate! Vencer o nível médio exige respeito.👏🏻",
+        "Xeque-mate! Partida sólida, visão tática afiada.🧠"
+    ],
+
+    avancado: [
+        "Xeque-mate! Vitória impressionante digna de mestre! 🤯",
+        "Xeque-mate! Ou você é Grandmaster ou usou outra engine! 🔍",
+        "Xeque-mate! Ora Ora, temos um Bobby Fisher aqui. 🤯"
+    ]
+};
 /**
  * Exibe o modal de fim de jogo com título e descrição personalizados.
  * 
@@ -21,15 +61,18 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
     switch (resultado) {
         case 'vitoria':
             titulo = '🏆 Você Ganhou!';
+
             if (motivo === 'TEMPO') {
-                descricao = 'Esperto! Você cozinhou o peixe até a vitória!😉'
+                descricao = 'Esperto! Você cozinhou o peixe até a vitória!😉';
             }
             else if (nivelDificuldade <= 3) {
-                descricao = 'Bela vitória! Você sabe jogar xadrez! Parabéns!👏🏻';
-            } else if (nivelDificuldade <= 10) {
-                descricao = `Excelente partida! Mostra uma ótima leitura tática.👏🏻`;
-            } else {
-                descricao = `Impressionante! Uma vitória digna de mestre!🤯`;
+                descricao = pegarFraseAleatoria(mensagensVitoria.iniciante);
+            }
+            else if (nivelDificuldade <= 10) {
+                descricao = pegarFraseAleatoria(mensagensVitoria.medio);
+            }
+            else {
+                descricao = pegarFraseAleatoria(mensagensVitoria.avancado);
             }
             break;
 
@@ -37,25 +80,26 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
             titulo = '👎 Você Perdeu';
 
             if (motivo === 'DESISTÊNCIA') {
-                descricao = 'Já vai? Derrota do jogador por abandono da partida.🏳️';
+                descricao = 'Já vai? Derrota por abandono de partida. 🏳️';
             }
             else if (motivo === 'TEMPO') {
-                descricao = 'Seu tempo acabou! Fique atento ao relógio da próxima vez.⏰';
+                descricao = 'Seu tempo acabou! Fique de olho no relógio na próxima. ⏰';
             }
             else if (nivelDificuldade <= 3) {
-                descricao = 'Não desanime! O xadrez exige prática, tente de novo.😉';
+                descricao = pegarFraseAleatoria(mensagensDerrota.iniciante);
             }
             else if (nivelDificuldade <= 10) {
-                descricao = 'Difícil? tente no nível iniciante pra dar uma treinada.😉';
+                descricao = pegarFraseAleatoria(mensagensDerrota.medio);
             }
             else {
-                descricao = 'Nível avançado? Eu avisei que você não teria chance!🤖';
+                descricao = pegarFraseAleatoria(mensagensDerrota.avancado);
             }
             break;
 
         case 'empate':
         default:
             titulo = '🤝 Empate';
+
             if (motivo === 'AFOGAMENTO') {
                 descricao = 'Empate por afogamento (Stalemate)! O rei não tem lances legais disponíveis, mas não está em xeque.';
             } else {
@@ -63,11 +107,16 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
             }
             break;
     }
-
     // Preenche o modal e o exibe
     elTitulo.textContent = titulo;
     elDescricao.textContent = descricao;
     modal.classList.remove('modal-oculto');
+}
+
+// Função auxiliar para sortear um item da lista
+function pegarFraseAleatoria(lista) {
+    const indice = Math.floor(Math.random() * lista.length);
+    return lista[indice];
 }
 
 /**

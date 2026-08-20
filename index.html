@@ -20,9 +20,10 @@
 <div id="modal-dificuldade" class="modal-overlay">
     <div class="modal-conteudo">
         <h2>Escolha a Dificuldade</h2>
-        <span>Seu adversário é o Stockfish, um dos motores de xadrez mais potentes do mundo. Nas dificuldades mais
-            baixas, ele limita seu cálculo e comete erros propositais; em níveis mais altos, avalia várias posições por
-            segundo para encontrar o lance perfeito.</span>
+        <span>Seu adversário é o <strong>Stockfish</strong>, um dos motores de xadrez mais potentes do mundo. Na
+            dificuldade mais baixa, ele <strong>limita sua capacidade de cálculo</strong> e o alcance de suas
+            análises; nos níveis mais altos, avalia <strong>múltiplas variantes em profundidade</strong> para encontrar
+            o <strong>lance perfeito</strong>.</span>
 
         <div class="opcoes-dificuldade">
             <button class="btn-opcao btn-dificuldade" data-level="1">
@@ -39,7 +40,7 @@
 
             <button class="btn-opcao btn-dificuldade" data-level="20">
                 <strong>Avançado</strong>
-                <span>Grande Mestre, você não terá chance. 🤖</span>
+                <span>Grande Mestre, precisão cirúrgica e cálculo implacável. 🤖</span>
                 <span class="elo">LvL: ELO 2800</span>
             </button>
         </div>
@@ -88,11 +89,13 @@
             <p>
                 O <strong>ChessFish</strong> é uma aplicação web desenvolvida para partidas interativas contra a engine
                 <strong>Stockfish</strong>. O jogo conta com 3 níveis de dificuldade ajustados por profundidade de
-                cálculo (<em>depth</em>), permitindo simular desde o comportamento de jogadores iniciantes e
-                intermediários até a precisão de um Grande Mestre.
+                cálculo (<em>depth</em>), e outros parametros que permitem simular desde o comportamento de jogadores
+                iniciantes(ELO 800) e
+                intermediários até a precisão de um Grande Mestre de Xadrez(ELO 2800+).
             </p>
             <p>
-                A aplicação realiza a leitura dinâmica de posições via notação FEN, identificando aberturas, variantes e
+                A aplicação realiza a leitura dinâmica de posições via notação <strong>FEN</strong>, identificando
+                aberturas, variantes e
                 vantagens posicionais, além de acompanhar o saldo material em tempo real a cada lance.
             </p>
         </div>

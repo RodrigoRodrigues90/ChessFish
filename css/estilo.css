@@ -407,12 +407,18 @@ body {
 }
 
 .modal-conteudo {
-    background-color: #2b2b2b;
+    background-color: #1a1a1a;
+    background-image:
+        linear-gradient(rgb(18, 18, 18), rgba(20, 20, 20, 0.918)),
+        url("../img/wp.jpg");
+    background-repeat: repeat;
+    background-size: 180px;
+    background-position: center;
     padding: 30px;
     border-radius: 12px;
     text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.274);
     color: #ffffff;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .modal-conteudo h2 {
@@ -479,28 +485,6 @@ body {
 .btn-opcao:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.btn-dificuldade {
-    background-color: #3d3d3d;
-    color: #ffffff;
-    border: 1px solid #555;
-}
-
-.btn-dificuldade:hover {
-    background-color: #4a4a4a;
-    border-color: #777;
-}
-
-.btn-dificuldade strong {
-    font-size: 1.1rem;
-    margin-bottom: 4px;
-    color: #f0d9b5;
-}
-
-.btn-dificuldade span {
-    font-size: 0.85rem;
-    color: #cccccc;
 }
 
 /* controles de jogo */
@@ -657,6 +641,12 @@ body {
     margin-bottom: 12px;
 }
 
+#modal-dificuldade .modal-conteudo strong,
+.modal-body p strong {
+    font-weight: 900;
+    color: #10b981;
+}
+
 .audio-credits {
     margin-top: 16px;
     padding: 10px 12px;
@@ -720,21 +710,12 @@ body {
     text-decoration: underline;
 }
 
-
-/* =========================================================
-   ESTILIZAÇÃO EXCLUSIVA DO MODAL DE DIFICULDADE (#modal-dificuldade)
-   ========================================================= */
-
-/* Card interno do Modal de Dificuldade */
 #modal-dificuldade .modal-conteudo {
-    background-color: #2b2b2b;
     border-radius: 12px;
     padding: 28px 24px;
     max-width: 460px;
-    width: 90%;
+    width: 100%;
     color: #ffffff;
-    text-align: center;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
 }
 
 /* Título */
@@ -748,11 +729,11 @@ body {
 
 /* Descrição textual sobre o Stockfish */
 #modal-dificuldade .modal-conteudo>span:not(.elo) {
+    text-align: left;
     display: block;
     font-size: 0.90rem;
     line-height: 1.45;
     color: #cccccc;
-    text-align: left;
     margin-bottom: 20px;
 }
 
@@ -767,9 +748,10 @@ body {
 /* Botões de opção de dificuldade */
 #modal-dificuldade .btn-dificuldade {
     position: relative;
-    background-color: #232323;
+    background-color: #2b2a2a;
     border-radius: 8px;
     padding: 12px 16px;
+    border: 1px solid #949695;
     display: flex;
     height: 90px;
     flex-direction: column;
