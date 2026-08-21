@@ -1,21 +1,21 @@
 
 const mensagensDerrota = {
     iniciante: [
-        "Xeque-mate. O xadrez exige pratica."+"\n"+"Tente de novo.",
-        "Xeque-mate. A maquina vence a capivara."+"\n"+"Tente de novo.",
-        "Xeque-mate. A maquina vence com o mínimo de cálculo."+"\n"+"Tente de novo."
+        "Xeque-mate. O xadrez exige pratica." + "\n" + "Tente de novo.",
+        "Xeque-mate. A maquina vence a capivara." + "\n" + "Tente de novo.",
+        "Xeque-mate. A maquina vence com o mínimo de cálculo." + "\n" + "Tente de novo."
     ],
 
     medio: [
         "Xeque-mate. Talvez valha a pena tentar de novo, no nível iniciante.",
-        "Xeque-mate. O peixe vence de novo!!!",
-        "Xeque-mate. O nível médio exige concentração."+"\n"+"Tente de novo.",
+        "Xeque-mate. O peixe vence de novo!!!"+"\n"+"Tente novamente.",
+        "Xeque-mate. O nível médio exige concentração." + "\n" + "Tente de novo.",
     ],
 
     avancado: [
-        "Xeque-mate. Nem Kasparov venceu o peixe nesse nível."+"\n"+"Tente de novo.",
-        "Xeque-mate. Nem Bobby Fisher venceria."+"\n"+"Tente de novo.",
-        "Xeque-mate. Magnus talvez chegaria perto, você nunca!"+"\n"+"Tente de novo."
+        "Xeque-mate. Nem Kasparov venceu o peixe nesse nível." + "\n" + "Tente de novo.",
+        "Xeque-mate. Nem Bobby Fischer venceria." + "\n" + "Tente de novo.",
+        "Xeque-mate. Magnus talvez chegaria perto, você nunca!" + "\n" + "Tente de novo."
     ]
 };
 const mensagensVitoria = {
@@ -47,6 +47,7 @@ const mensagensVitoria = {
  */
 export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
     const modal = document.getElementById('modal-fim-de-jogo');
+    const modalConteudo = document.getElementById('modal-final')
     const elTitulo = document.getElementById('titulo-fim-de-jogo');
     const elDescricao = document.getElementById('descricao-fim-de-jogo');
     const btnFecharModal = document.querySelector('#modal-fim-de-jogo button');
@@ -61,7 +62,7 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
     switch (resultado) {
         case 'vitoria':
             titulo = '🏆 Você Ganhou!';
-
+            modalConteudo.classList.add('modal-vitoria')
             if (motivo === 'TEMPO') {
                 descricao = 'Esperto! Você cozinhou o peixe até a vitória!😉';
             }
@@ -78,7 +79,7 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
 
         case 'derrota':
             titulo = '👎 Você Perdeu';
-
+            modalConteudo.classList.add('modal-derrota')
             if (motivo === 'DESISTÊNCIA') {
                 descricao = 'Já vai? Derrota por abandono de partida. 🏳️';
             }

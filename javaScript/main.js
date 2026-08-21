@@ -4,7 +4,7 @@ import { desenharCoordenadas, gerarFEN, algebraicoParaCoord, converterParaUCI } 
 import { obterJogadaStockfish } from './api.js';
 import { exibirModalFimDeJogo } from './fimdejogo.js';
 import { calcularSaldoPorCapturas } from './saldo.js';
-import { tipyng } from './tipyng.js';
+import { tipyng ,pararTyping} from './tipyng.js';
 
 const elComentario = document.getElementById('texto-comentario');
 const DOM_TABULEIRO = document.getElementById('tabuleiro');
@@ -26,7 +26,7 @@ let saldoJogador = 0
 // Arrays para guardar o histórico das peças capturadas
 const capturadasPeloJogador = [];
 const capturadasPelaIA = [];
-const historicoLista = [];
+let historicoLista = [];
 
 //--------------- ELEMENTOS DE INTERFACE ----------------//
 const nivelTitulo = document.getElementById('nivel-titulo')
@@ -164,7 +164,7 @@ let alertaTocadoB = false;
 
 // Assumindo que 'corJogador' vale 'w' ou 'b'
 const relogio = new Clock(
-    5,
+    10,
     (dados) => {
         // 1. O relógio sempre envia 'w' (Brancas) e 'b' (Pretas)
         // Mapeamos o display conforme a cor atribuída ao jogador
@@ -461,6 +461,7 @@ function tratarCliqueCasa(linha, coluna) {
         } else if (typeof relogio.alternarTurno === 'function') {
             relogio.alternarTurno();
         }
+        pararTyping();
         simularPensamentoIAComentario();
         // Chama a IA para fazer a jogada
         setTimeout(() => {
