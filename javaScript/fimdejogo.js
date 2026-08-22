@@ -8,7 +8,7 @@ const mensagensDerrota = {
 
     medio: [
         "Xeque-mate. Talvez valha a pena tentar de novo, no nível iniciante.",
-        "Xeque-mate. O peixe vence de novo!!!"+"\n"+"Tente novamente.",
+        "Xeque-mate. O peixe vence de novo!!!" + "\n" + "Tente novamente.",
         "Xeque-mate. O nível médio exige concentração." + "\n" + "Tente de novo.",
     ],
 
@@ -78,7 +78,7 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
             break;
 
         case 'derrota':
-            titulo = '👎 Você Perdeu';
+            titulo = 'Você Perdeu';
             modalConteudo.classList.add('modal-derrota')
             if (motivo === 'DESISTÊNCIA') {
                 descricao = 'Já vai? Derrota por abandono de partida. 🏳️';
@@ -100,7 +100,7 @@ export function exibirModalFimDeJogo(resultado, nivelDificuldade, motivo = '') {
         case 'empate':
         default:
             titulo = '🤝 Empate';
-
+            modalConteudo.classList.add('modal-empate')
             if (motivo === 'AFOGAMENTO') {
                 descricao = 'Empate por afogamento (Stalemate)! O rei não tem lances legais disponíveis, mas não está em xeque.';
             } else {
