@@ -172,7 +172,7 @@ export class Tabuleiro {
                                 movimentos.push({ linha: proximaLinha, coluna: colDiag });
                             }
                         }
-                        
+
                         // REGRA: Captura En Passant
                         if (this.alvoEnPassant && proximaLinha === this.alvoEnPassant.linha && colDiag === this.alvoEnPassant.coluna) {
                             movimentos.push({ linha: proximaLinha, coluna: colDiag });
@@ -322,6 +322,14 @@ export class Tabuleiro {
     }
 
     verificarFimDeJogo() {
+
+        if (this.temMaterialInsuficiente()) {
+            this.jogoFinalizado = true;
+            return {
+                tipo: 'MATERIAL_INSUFICIENTE'
+            };
+        }
+
         let possuiMovimentoLegal = false;
 
         for (let l = 0; l < 8; l++) {
@@ -354,6 +362,59 @@ export class Tabuleiro {
         }
 
         return null;
+    }
+
+    // Ultima atualização:
+    temMaterialInsuficiente() {
+        const pecas = [];
+
+        // Mapeia todas as peças presentes no tabuleiro
+        for (let l = 0; l < 8; l++) {
+            for (let c = 0; c < 8; c++) {
+                const peca = this.grid[l][c];
+                if (peca !== '') {
+                    pecas.push(peca);
+                }
+            }
+        }
+
+        // Se houver Peão, Torre ou Dama, NUNCA é material insuficiente
+        if (pecas.some(p => ['p', 'P', 'r', 'R', 'q', 'Q'].includes(p))) {
+            return false;
+        }
+
+        // 1. Rei vs Rei
+        if (pecas.length === 2) {
+            return true;
+        }
+
+        // 2. Rei e Bispo vs Rei  OU  Rei e Cavalo vs Rei
+        if (pecas.length === 3) {
+            return true;
+        }
+
+        // 3. Rei e Bispo vs Rei e Bispo
+        if (pecas.length === 4) {
+            const bispos = pecas.filter(p => p.toLowerCase() === 'b');
+            if (bispos.length === 2) {
+                // Checa a cor das casas dos dois bispos
+                const casasBispos = [];
+                for (let l = 0; l < 8; l++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (this.grid[l][c].toLowerCase() === 'b') {
+                            // (linha + coluna) % 2 === 0 é casa branca, 1 é casa preta
+                            casasBispos.push((l + c) % 2);
+                        }
+                    }
+                }
+                // Se ambos os bispos estão em casas da mesma cor (ex: ambos no 0 ou ambos no 1)
+                if (casasBispos[0] === casasBispos[1]) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     clonarGrid(grid) {
